@@ -22,6 +22,33 @@ def scrape_word(word):
     soup = BeautifulSoup(r, 'html5lib')
     def_wrapper = soup.find('div', {'id': 'definition-wrapper'})
     left_content = def_wrapper.find('div', {'id' : 'left-content'})
+    (word_name, base_word_, pos_, form_word_) = \
+        _add_base_form_def_pos_example_to_db(left_content)
+    #Add different spellings of word to model
+    alternate_forms = left_content.find_all('span', {'class' : 'vg-ins'})
+    different_spellings = set()
+    different_spellings.add(word_name)
+    for alternate_form in alternate_forms:
+         different_forms = alternate_form.find_all('span', {'class' : 'if'})
+         for different_form in different_forms:
+             different_spellings.add(different_form.getText().strip())
+    for spelling in different_spellings:
+        _, _ = (models.VariantWord.objects.get_or_create(base_word=base_word_,
+                                                         name=spelling))
+    # #Add in example sentences
+    # example_header = left_content.find('div', {'class' : 'example_sentences'})
+    # if example_header is not None:
+    #     sentence_headers = (example_header
+    #         .find_all('div', {'class' : 'in-sentences'}))
+    #     for s_header in sentence_headers:
+    #         pos = s_header.find('p', {'class' : 'function-label'}).getText()
+    #         ex_sentences = s_header.find_all('span', {'class' : 'no-aq'})
+    #         for ex_sentence in ex_sentences:
+    #             s = models.ExampleSentence(definition=)
+    #
+
+def _add_base_form_def_pos_example_to_db(left_content):
+    """Adds BaseWord, PartOfSpeech, FormWord, and WordDefinition to db"""
     entries = (left_content.find_all('div', {'class': 'entry-header'},
                recursive=False))
     i = 1
@@ -53,16 +80,7 @@ def scrape_word(word):
                              .get_or_create(form_word=form_word_,
                                             definition=clean_def)
         i += 1
-    alternate_forms = left_content.find_all('span', {'class' : 'vg-ins'})
-    different_spellings = set()
-    different_spellings.add(word_name)
-    for alternate_form in alternate_forms:
-         different_forms = alternate_form.find_all('span', {'class' : 'if'})
-         for different_form in different_forms:
-             different_spellings.add(different_form.getText().strip())
-    for spelling in different_spellings:
-        _, _ = (models.VariantWord.objects.get_or_create(base_word=base_word_,
-                                                         name=spelling))
+    return (word_name, base_word_, pos_, form_word_)
 
 
 def _clean_definition(definition, extra_text):
