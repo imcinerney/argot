@@ -9,6 +9,11 @@ class BaseWord(models.Model):
     """
     name = models.CharField(max_length=50, unique=True)
 
+    def return_pos_list(self):
+        """Returns the list of parts of speech associated for a word"""
+        form_words = self.formword_set
+        return [form_word.pos.name for form_word in form_words.all()]
+
 
 class PartOfSpeech(models.Model):
     """Part of speech of a word"""
@@ -44,15 +49,14 @@ class ExampleSentence(models.Model):
 
 
 class Synonym(models.Model):
-    """Word that has a similar meaning to a base word.
+    """Word that has a similar meaning to a FormWord.
 
     Need to validate that base_word is not equal to the synonym. Unsure if I
     can do this within the model method or if this validation should just be
     handled when creating the database.
     """
     base_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
-    synonym = models.ForeignKey(FormWord, on_delete=models.CASCADE,
-                                related_name='synonym+')
+    synonym = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     unique_together = ('base_word', 'synonym')
 
 
@@ -62,6 +66,5 @@ class Antonym(models.Model):
     Same issue of validating as commented in the synonym class
     """
     base_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
-    antonym = models.ForeignKey(FormWord, on_delete=models.CASCADE,
-                                related_name='antonym+')
+    antonym = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     unique_together = ('base_word', 'synonym')
