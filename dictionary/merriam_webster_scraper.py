@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import urllib.request as urllib2
+import requests
 import time
 import random
 import os
@@ -26,8 +26,9 @@ def scrape_word(word, search_synonym=False):
     just the word
     """
     url = 'https://www.merriam-webster.com/dictionary/' + word
-    r = urllib2.urlopen(url).read()
-    soup = BeautifulSoup(r, 'html5lib')
+    r = requests.get(url)
+    print('The status code of the request is: {0}'.format(r.status_code))
+    soup = BeautifulSoup(r.content, 'html5lib')
     def_wrapper = soup.find('div', {'id': 'definition-wrapper'})
     left_content = def_wrapper.find('div', {'id' : 'left-content'})
     #separate function to reduce size of function
