@@ -14,10 +14,21 @@ class BaseWord(models.Model):
         form_words = self.formword_set
         return [form_word.pos.name for form_word in form_words.all()]
 
+    def __str__(self):
+        return f'{self.name}'
+
+    def __repr__(self):
+        return f'BaseWord({self.id!r}, {self.name!r})'
+
 
 class PartOfSpeech(models.Model):
     """Part of speech of a word"""
     name = models.CharField(max_length=15, unique=True)
+    def __str__(self):
+        return f'{self.name}'
+
+    def __repr__(self):
+        return f'PartOfSpeech({self.id!r}, {self.name!r})'
 
 
 class FormWord(models.Model):
@@ -25,6 +36,12 @@ class FormWord(models.Model):
     base_word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     pos = models.ForeignKey(PartOfSpeech, on_delete=models.CASCADE)
     unique_together = ('base_word', 'pos')
+
+    def __str__(self):
+        return f'word: {self.base_word.name}, pos: {self.pos}'
+
+    def __repr__(self):
+        return f'FormWord({self.id!r}, {self.base_word!r}, {self.pos!r})'
 
 
 class VariantWord(models.Model):
@@ -35,17 +52,37 @@ class VariantWord(models.Model):
     base_word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=True)
 
+    def __str__(self):
+        return f'base word: {self.base_word}, alternate_form: {self.name}'
+
+    def __repr__(self):
+        return f'VariantWord({self.id!r}, {self.base_word!r}, {self.name!r})'
+
 
 class WordDefinition(models.Model):
     """Contains all the listed definitions for a word."""
     form_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
     definition = models.CharField(max_length=300)
 
+    def __str__(self):
+        return f'{self.form_word}\ndefintion: {self.definition}'
+
+    def __repr__(self):
+        return (f'WordDefinition({self.id!r}, {self.form_word!r},'
+               f' {self.definition!r})')
+
 
 class ExampleSentence(models.Model):
     """An example of a word used in a sentence for a definition of a word."""
     definition = models.ForeignKey(WordDefinition, on_delete=models.CASCADE)
     sentence = models.CharField(max_length=300)
+
+    def __str__(self):
+        return f'defintion: {self.definition}\nsentence: {self.sentence}'
+
+    def __repr__(self):
+        return (f'ExampleSentence({self.id!r}, {self.definition!r},'
+                f'{self.sentence!r})')
 
 
 class Synonym(models.Model):
@@ -55,9 +92,15 @@ class Synonym(models.Model):
     can do this within the model method or if this validation should just be
     handled when creating the database.
     """
-    base_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
+    form_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
     synonym = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
-    unique_together = ('base_word', 'synonym')
+    unique_together = ('form_word', 'synonym')
+
+    def __str__(self):
+        return f'{self.form_word} Synonym: {self.synonym}'
+
+    def __repr__(self):
+        return f'Synonym({self.id!r}, {self.form_word!r}, {self.synonym!r})'
 
 
 class Antonym(models.Model):
@@ -65,6 +108,12 @@ class Antonym(models.Model):
 
     Same issue of validating as commented in the synonym class
     """
-    base_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
+    form_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
     antonym = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
-    unique_together = ('base_word', 'synonym')
+    unique_together = ('form_word', 'antonym')
+
+    def __str__(self):
+        return f'{self.form_word} Antonym: {self.antonym}'
+
+    def __repr__(self):
+        return f'Antonym({self.id!r}, {self.form_word!r}, {self.antonym!r})'

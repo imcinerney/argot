@@ -94,11 +94,11 @@ def _add_synonyms(left_content, base_word_):
             synonym_base_word = _return_base_word(word_text)
             if synonym_flag == 'synonyms':
                 _, _ = models.Synonym.objects \
-                             .get_or_create(base_word=lookup_form_word,
+                             .get_or_create(form_word=lookup_form_word,
                                             synonym=synonym_base_word)
             else:
                 _, _ = models.Antonym.objects \
-                             .get_or_create(base_word=lookup_form_word,
+                             .get_or_create(form_word=lookup_form_word,
                                             antonym=synonym_base_word)
 
 
@@ -262,7 +262,7 @@ def _clean_definition(definition, extra_text):
     def_text = re.sub('sense [0-9]', '', def_text)
     split_defs = def_text.split(':')
     p = re.compile('([a-zA-Z][a-zA-Z ,-\\\/()]*)')
-    return [p.search(split_def).group()
+    return [p.search(split_def).group().strip()
             for split_def in split_defs
             if p.search(split_def) is not None]
 
