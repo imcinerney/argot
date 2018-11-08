@@ -16,19 +16,16 @@ def scrape_word(word, search_synonym=False):
     Keyword arguments:
     word -- word to add to database
     search_synonym -- boolean to add all synonyms listed to database as well
-    use_links -- boolean to signal whether the word being passed is a link or
-    just the word
     """
     url = 'https://www.merriam-webster.com/dictionary/' + word
     r = requests.get(url)
-    print('The status code of the request is: {0}'.format(r.status_code))
+    if r.status_code != 200:
+        print('The status code of the request is: {0}'.format(r.status_code))
     soup = BeautifulSoup(r.content, 'html5lib')
     def_wrapper = soup.find('div', {'id': 'definition-wrapper'})
     left_content = def_wrapper.find('div', {'id' : 'left-content'})
-    #separate function to reduce size of function
     (word_name, base_word_) = \
         _add_base_form_def_pos_example_to_db(left_content)
-    #Add different spellings of word to model
     alternate_forms = left_content.find_all('span', {'class' : 'vg-ins'})
     different_spellings = set()
     different_spellings.add(word_name)
@@ -42,6 +39,18 @@ def scrape_word(word, search_synonym=False):
                                                          name=spelling))
     if search_synonym:
         _add_synonyms(left_content, base_word_)
+
+
+def load_list_of_words(filename):
+    """Loads list of words and adds to db if not already in"""
+    word_list_file = os.path.join('dictionary', 'word_lists', filename)
+    word_list = _load_word_list(word_list_file)
+    variant_word_set = models.VariantWord.objects.values_list('name', flat=True)
+    for word in word_list:
+        if word not in variant_word_set:
+            print(word)
+            scrape_word(word, search_synonym=True)
+            time.sleep(1)
 
 
 def _add_synonyms(left_content, base_word_):
@@ -85,7 +94,8 @@ def _add_synonyms(left_content, base_word_):
                 time.sleep(2)
                 print('looking up the synonym: {0}'.format(word_text))
                 scrape_word(word_text)
-            synonym_base_word = _return_base_word(word_text)
+            synonym_base_word = models.VariantWord.objects.all() \
+                                      .get(name=word).base_word
             if synonym_flag == 'synonyms':
                 _, _ = models.Synonym.objects \
                              .get_or_create(form_word=lookup_form_word,
@@ -94,12 +104,6 @@ def _add_synonyms(left_content, base_word_):
                 _, _ = models.Antonym.objects \
                              .get_or_create(form_word=lookup_form_word,
                                             antonym=synonym_base_word)
-
-
-def _return_base_word(word):
-    """Looks up a word in the variant word table and returns the baseword"""
-    bw = models.VariantWord.objects.all().get(name=word).base_word
-    return bw
 
 
 def _separate_synonym_pos(synonym_pos, base_word_):
@@ -146,7 +150,7 @@ def _scrape_synonym_section(left_content):
                                             {'class' : 'function-label'})
     synonym_lists = synonym_header.find_all('p', {'class' : None})
     if len(synonym_labels) != len(synonym_lists):
-        raise ValueError('there are an uneven number of labels and lists')
+        raise ValueError('There are an uneven number of labels and lists')
     pos_synonym_list = []
     for label, s_list in zip(synonym_labels, synonym_lists):
         word_list = s_list.find_all('a')
@@ -309,20 +313,6 @@ def _clean_pos_text(pos_text):
                           .format(pos_text)))
     else:
         return match.group()
-
-
-def load_list_of_words(filename):
-    """Loads list of words, looks up each entry, and loads information
-    into database.
-    """
-    word_list_file = os.path.join('dictionary', 'word_lists', filename)
-    word_list = _load_word_list(word_list_file)
-    variant_word_set = models.VariantWord.objects.values_list('name', flat=True)
-    for word in word_list:
-        if word not in variant_word_set:
-            print(word)
-            scrape_word(word, search_synonym=True)
-            time.sleep(1)
 
 
 def _load_word_list(filename):
