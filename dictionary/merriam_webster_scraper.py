@@ -9,12 +9,6 @@ from django.db import transaction
 from django.db.models import F
 
 
-def _load_word_list(filename):
-    """Reads file of words into list"""
-    with open(filename, 'r') as f:
-        return [line.strip() for line in f]
-
-
 @transaction.atomic()
 def scrape_word(word, search_synonym=False):
     """Scrape entry for page and loads into database
@@ -83,7 +77,7 @@ def _add_synonyms(left_content, base_word_):
         lookup_form_word = _return_form_word(pos, base_word_.name)
         for word in word_list:
             variant_word_set = models.VariantWord.objects.values_list('name',
-            flat=True)
+                                                                      flat=True)
             p = re.compile('(^[a-z\-]*)')
             m = p.match(word.getText().lower())
             word_text = m.group(1)
@@ -204,39 +198,77 @@ def _add_base_form_def_pos_example_to_db(left_content):
                                   .get_or_create(name=word_name)
             return (word_name, base_word_)
         base_word_, _ = models.BaseWord.objects.get_or_create(name=word_name)
-        def_entry_num = 'dictionary-entry-' + str(i)
-        def_entry = left_content.find('div', {'id' :  def_entry_num})
-        definitions = def_entry.find_all('span', {'class' : 'dtText'})
-        try:
-            pos_text = _clean_pos_text(entry
-                           .find('a', {'class' : 'important-blue-link'})
-                           .getText())
-        except AttributeError:
-            try:
-                pos_text = _clean_pos_text(entry.find('span' , {'class' : 'fl'})
-                                           .getText())
-            except AttributeError:
-                continue
-        pos_, _ = models.PartOfSpeech.objects.get_or_create(name=pos_text)
+        pos_ = _find_pos(entry)
+        if pos_ is None:
+            continue
         form_word_, _ = (models.FormWord.objects
                                         .get_or_create(pos=pos_,
                                                        base_word=base_word_,))
-        for definition in definitions:
-            #These are examples or quotes we don't need in the definition
-            extra_text = definition.find_all('span', {'class' : 'ex-sent'})
-            examples = definition.find_all('span', {'class' : 't'})
-            clean_defs = _clean_definition(definition, extra_text)
-            for clean_def in clean_defs:
-                word_def, _ = models.WordDefinition.objects \
-                                    .get_or_create(form_word=form_word_,
-                                                   definition=clean_def)
-                for example in examples:
-                    example_text = _clean_example_text(example.getText())
-                    _, _ = models.ExampleSentence.objects \
-                                 .get_or_create(definition=word_def,
-                                                sentence=example_text)
+        _add_definition_and_examples(i, left_content, form_word_)
         i += 1
     return (word_name, base_word_)
+
+
+def _add_definition_and_examples(dictionary_entry_num, left_content,
+                                 form_word_):
+    """Helper function to find the defintion & example sentence sections
+
+    Keyword arguments:
+    dictionary_entry_num -- Used to locate the correct HTML tag
+    left_content -- The part of the webpage that contains all pertinent info
+    form_word_ -- FormWord object to link definition to
+
+    Merriam webster does not keep all information for an entry in one parent
+    HTML tag. Instead, it puts information regarding the word name and part of
+    speech in one tag and then another tag for the defintions and example
+    sentence in the next tag. We use the dictionary_entry_num to locate the
+    associated definition entry with the correct word and pos.
+
+    Returns nothing, as we just create the entries unless they are already in
+    the database.
+    """
+    def_entry_num = 'dictionary-entry-' + str(dictionary_entry_num)
+    def_entry = left_content.find('div', {'id' :  def_entry_num})
+    definitions = def_entry.find_all('span', {'class' : 'dtText'})
+    for definition in definitions:
+        #These are examples or quotes we don't need in the definition
+        extra_text = definition.find_all('span', {'class' : 'ex-sent'})
+        examples = definition.find_all('span', {'class' : 't'})
+        clean_defs = _clean_definition(definition, extra_text)
+        for clean_def in clean_defs:
+            word_def, _ = models.WordDefinition.objects \
+                                .get_or_create(form_word=form_word_,
+                                               definition=clean_def)
+            for example in examples:
+                example_text = _clean_example_text(example.getText())
+                _, _ = models.ExampleSentence.objects \
+                             .get_or_create(definition=word_def,
+                                            sentence=example_text)
+
+
+def _find_pos(entry):
+    """Helper function to find the pos on the site and return pos object
+
+    Keyword arguments:
+    entry -- the section of HTML that contains word_name, def, and pos
+
+    The part of speech can be found in different sections. Most of the time it
+    it stored in the 'import-blue-link' class within the entry. Otherwise, it
+    is in the 'fl' class. If it isn't in either of those, return a None. If it
+    is found, returns a PartOfSpeech object.
+    """
+    try:
+        pos_text = _clean_pos_text(entry
+                       .find('a', {'class' : 'important-blue-link'})
+                       .getText())
+    except AttributeError:
+        try:
+            pos_text = _clean_pos_text(entry.find('span' , {'class' : 'fl'})
+                                       .getText())
+        except AttributeError:
+            return None
+    pos_, _ = models.PartOfSpeech.objects.get_or_create(name=pos_text)
+    return pos_
 
 
 def _clean_example_text(example_text):
@@ -291,3 +323,9 @@ def load_list_of_words(filename):
             print(word)
             scrape_word(word, search_synonym=True)
             time.sleep(1)
+
+
+def _load_word_list(filename):
+    """Reads file of words into list"""
+    with open(filename, 'r') as f:
+        return [line.strip() for line in f]

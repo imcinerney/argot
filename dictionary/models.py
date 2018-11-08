@@ -78,7 +78,7 @@ class ExampleSentence(models.Model):
     sentence = models.CharField(max_length=300)
 
     def __str__(self):
-        return f'defintion: {self.definition}\nsentence: {self.sentence}'
+        return f'{self.definition}\nsentence: {self.sentence}'
 
     def __repr__(self):
         return (f'ExampleSentence({self.id!r}, {self.definition!r},'
