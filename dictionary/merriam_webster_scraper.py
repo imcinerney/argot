@@ -95,7 +95,7 @@ def _add_synonyms(left_content, base_word_):
                 print('looking up the synonym: {0}'.format(word_text))
                 scrape_word(word_text)
             synonym_base_word = models.VariantWord.objects.all() \
-                                      .get(name=word).base_word
+                                      .get(name=word_text).base_word
             if synonym_flag == 'synonyms':
                 _, _ = models.Synonym.objects \
                              .get_or_create(form_word=lookup_form_word,
@@ -292,7 +292,6 @@ def _clean_definition(definition, extra_text):
     for text in extra_text:
         extra = text.getText().strip()
         def_text = def_text.replace(extra, '')
-    #sometimes multiple definition appear on one line
     def_text = def_text.replace('archaic :', 'archaic --')
     def_text = re.sub('\(see.*', '', def_text)
     def_text = re.sub('sense [0-9]', '', def_text)
