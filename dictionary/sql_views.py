@@ -45,7 +45,10 @@ def base_word_stats():
 
 def _export_views(view_name):
     """Used for debugging purposes, generates a query to test validity"""
-    s = eval(view_name)()
+    try:
+        s = eval(view_name)()
+    except NameError:
+        raise NameError(f'No sql views found with the name {view_name}')
     export_file = os.path.join('dictionary', 'sql_queries', view_name + '.sql')
     with open(export_file, 'w+') as f:
         f.write(str(s))
