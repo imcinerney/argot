@@ -18,8 +18,9 @@ def base_word_synonyms():
     """Lists every synonym for every base word"""
     qs = (models.BaseWord.objects.all()
                 .annotate(pos=F('formword__pos__name'))
-                .annotate(synonym_=F('formword__synonym__synonym__name'))
-                .values('name', 'pos', 'synonym_')
+                .annotate(synonym_name=F('formword__synonym__synonym__name'))
+                .filter(synonym_name__isnull=False)
+                .values('name', 'pos', 'synonym_name')
          )
     sql_statement = 'create view synonym_list as ' + str(qs.query)
     return sql_statement
@@ -29,8 +30,9 @@ def base_word_antonyms():
     """Lists every antonym for every base word"""
     qs = (models.BaseWord.objects.all()
                 .annotate(pos=F('formword__pos__name'))
-                .annotate(antonym_=F('formword__antonym__antonym__name'))
-                .values('name', 'pos', 'antonym_')
+                .annotate(antonym_name=F('formword__antonym__antonym__name'))
+                .filter(antonym_name__isnull=False)
+                .values('name', 'pos', 'antonym_name')
          )
     sql_statement = 'create view antonym_list as ' + str(qs.query)
     return sql_statement
