@@ -7,6 +7,7 @@ import re
 from dictionary import models
 from django.db import transaction
 from django.db.models import F
+from django.db.utils import IntegrityError
 
 
 @transaction.atomic()
@@ -18,7 +19,11 @@ def scrape_word(word, search_synonym=False):
     search_synonym -- boolean to add all synonyms listed to database as well
     """
     url = 'https://www.merriam-webster.com/dictionary/' + word
-    r = requests.get(url)
+    try:
+        r = requests.get(url, timeout=10)
+    except requests.exceptions.Timeout:
+        scrape_word(word, search_synonym)
+        return
     if r.status_code != 200:
         print('The status code of the request is: {0}'.format(r.status_code))
     soup = BeautifulSoup(r.content, 'html5lib')
@@ -91,11 +96,11 @@ def _add_synonyms(left_content, base_word_):
             m = p.match(word.getText().lower())
             word_text = m.group(1)
             if word_text not in variant_word_set:
-                time.sleep(2)
-                print('looking up the synonym: {0}'.format(word_text))
-                scrape_word(word_text)
-            synonym_base_word = models.VariantWord.objects.all() \
-                                      .get(name=word_text).base_word
+                synonym_base_word = _handle_creating_synonyms(word_text,
+                                                              variant_word_set)
+            else:
+                synonym_base_word = models.VariantWord.objects.all() \
+                                          .get(name=word_text).base_word
             if synonym_flag == 'synonyms':
                 _, _ = models.Synonym.objects \
                              .get_or_create(form_word=lookup_form_word,
@@ -104,6 +109,37 @@ def _add_synonyms(left_content, base_word_):
                 _, _ = models.Antonym.objects \
                              .get_or_create(form_word=lookup_form_word,
                                             antonym=synonym_base_word)
+
+
+def _handle_creating_synonyms(word_text, variant_word_set):
+    """Adds synonym to db and returns the associated base word
+
+    Keyword arguments:
+    word_text -- the synonym/anonym listed to lookup
+    variant_word_set -- list of all different spellings of words in the db
+
+    Sometimes a word will be listed as a synonym that and has an entry page that
+    lists an alternative spelling that has its own page. If later on, a synonym
+    for a different word lists an alternative spelling of the word with its own
+    page, this can cause a failure to lookup a word successfully. For example,
+    if we look up the word 'capricious,' it lists 'settled' as an antonym.
+    'Settled' directs to the 'settle' entry that lists 'settling' as an
+    alternative form of the word. The word 'precipitate' lists 'settlings' as a
+    synonym. 'settlings' does not show up as an alternative form/spelling for
+    'settle.' Thus, we would look up 'settlings,' which goes to the 'settling'
+    page. When we try to add 'settling' to the database, there will be an error,
+    because 'settling' was already added to the variant word set.
+    """
+    print(f'looking up the synonym: {word_text}')
+    time.sleep(2)
+    try:
+        scrape_word(word_text)
+    except IntegrityError:
+        word_text = re.sub('s$', '', word_text)
+        if word_text not in variant_word_set:
+            scrape_word(word_text)
+    return models.VariantWord.objects.all().get(name=word_text).base_word
+
 
 
 def _separate_synonym_pos(synonym_pos, base_word_):
@@ -128,8 +164,8 @@ def _separate_synonym_pos(synonym_pos, base_word_):
             if match is not None:
                 return (match.group(1), match.group(2))
         #If it hasn't returned, means that there must be issue
-        raise ValueError('The synonym string did not meet the expected pattern'
-                         '\nThe description was {0}'.format(synonym_pos))
+        raise ValueError(f'The synonym string did not meet the expected pattern'
+                         f'\nThe description was {synonym_pos}'))
 
 
 def _return_form_word(pos, base_word_):
@@ -304,14 +340,14 @@ def _clean_definition(definition, extra_text):
 
 def _clean_pos_text(pos_text):
     """Limit to just the word"""
-    p = re.compile('([A-z]*)')
+    p = re.compile('([A-z ]*)')
     match = p.search(pos_text)
     if match.group() is None:
         raise (ValueError('Something wrong happened when extracting the part '
                           'of speech. The extracted text is: {0}'
                           .format(pos_text)))
     else:
-        return match.group()
+        return match.group().strip()
 
 
 def _load_word_list(filename):
