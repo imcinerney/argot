@@ -29,7 +29,7 @@ def scrape_word(word, search_synonym=False):
     soup = BeautifulSoup(r.content, 'html5lib')
     def_wrapper = soup.find('div', {'id': 'definition-wrapper'})
     left_content = def_wrapper.find('div', {'id' : 'left-content'})
-    (word_name, base_word_) = \
+    (word_name, base_word_, variant_word_set) = \
         _add_base_form_def_pos_example_to_db(left_content)
     alternate_forms = left_content.find_all('span', {'class' : 'vg-ins'})
     different_spellings = set()
@@ -39,6 +39,8 @@ def scrape_word(word, search_synonym=False):
          different_forms = alternate_form.find_all('span', {'class' : 'if'})
          for different_form in different_forms:
              different_spellings.add(different_form.getText().strip())
+    different_spellings = [spelling for spelling in different_spellings
+                           if spelling not in variant_word_set]
     for spelling in different_spellings:
         _, _ = (models.VariantWord.objects.get_or_create(base_word=base_word_,
                                                          name=spelling))
@@ -165,7 +167,7 @@ def _separate_synonym_pos(synonym_pos, base_word_):
                 return (match.group(1), match.group(2))
         #If it hasn't returned, means that there must be issue
         raise ValueError(f'The synonym string did not meet the expected pattern'
-                         f'\nThe description was {synonym_pos}'))
+                         f'\nThe description was {synonym_pos}')
 
 
 def _return_form_word(pos, base_word_):
@@ -236,7 +238,7 @@ def _add_base_form_def_pos_example_to_db(left_content):
         if word_name in variant_word_set:
             base_word_, _ = models.BaseWord.objects \
                                   .get_or_create(name=word_name)
-            return (word_name, base_word_)
+            return (word_name, base_word_, variant_word_set)
         base_word_, _ = models.BaseWord.objects.get_or_create(name=word_name)
         pos_ = _find_pos(entry)
         if pos_ is None:
@@ -246,7 +248,7 @@ def _add_base_form_def_pos_example_to_db(left_content):
                                                        base_word=base_word_,))
         _add_definition_and_examples(i, left_content, form_word_)
         i += 1
-    return (word_name, base_word_)
+    return (word_name, base_word_, variant_word_set)
 
 
 def _add_definition_and_examples(dictionary_entry_num, left_content,
