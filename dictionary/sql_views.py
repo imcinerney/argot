@@ -1,5 +1,5 @@
 from dictionary import models
-from django.db.models import F
+from django.db.models import F, Count, Subquery, OuterRef
 import os
 
 
@@ -40,7 +40,28 @@ def base_word_antonyms():
 
 def base_word_stats():
     """Generates count of pos, definitions, synonyms, and antonyms"""
-    pass
+    qs1 = (models.BaseWord.objects.all()
+                 .filter(id=OuterRef('id'))
+                 .annotate(pos_count=Count('formword__pos__name'))
+          )
+    qs2 = (models.BaseWord.objects.all()
+                 .filter(id=OuterRef('id'))
+                 .annotate(synonym_count=
+                    Count('formword__synonym__synonym__name'))
+          )
+    qs3 = (models.BaseWord.objects.all()
+                 .filter(id=OuterRef('id'))
+                 .annotate(antonym_count=
+                    Count('formword__antonym__antonym__name'))
+          )
+    qs = (models.BaseWord.objects.all()
+                .order_by('id')
+                .annotate(pos_count=Subquery(qs1.values('pos_count')))
+                .annotate(synonym_count=Subquery(qs2.values('synonym_count')))
+                .annotate(antonym_count=Subquery(qs3.values('antonym_count')))
+        )
+    sql_statement = 'create view base_word_stats as ' + str(qs.query)
+    return sql_statement
 
 
 def _export_views(view_name):
@@ -48,7 +69,7 @@ def _export_views(view_name):
     try:
         s = eval(view_name)()
     except NameError:
-        raise NameError(f'No sql views found with the name {view_name}')
+        raise NameError(f'No sql view found with the name {view_name}')
     export_file = os.path.join('dictionary', 'sql_queries', view_name + '.sql')
     with open(export_file, 'w+') as f:
         f.write(str(s))

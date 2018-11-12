@@ -14,4 +14,5 @@ class Migration(migrations.Migration):
 		migrations.RunSQL(sql_views.base_word_definitions()),
 		migrations.RunSQL(sql_views.base_word_synonyms()),
 		migrations.RunSQL(sql_views.base_word_antonyms()),
+		migrations.RunSQL(sql_views.base_word_stats()),
 	]
