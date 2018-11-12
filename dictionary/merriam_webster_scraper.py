@@ -143,7 +143,6 @@ def _handle_creating_synonyms(word_text, variant_word_set):
     return models.VariantWord.objects.all().get(name=word_text).base_word
 
 
-
 def _separate_synonym_pos(synonym_pos, base_word_):
     """Returns whether or not the words are synonyms or antonyms and the pos"""
     pos_list = models.PartOfSpeech.objects.all().values_list('name', flat=True)
