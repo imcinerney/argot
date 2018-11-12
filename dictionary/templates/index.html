@@ -1,0 +1,11 @@
+{% if latest_words_added %}
+    <ul>
+    {% for word in latest_words_added %}
+        <li>
+          <a href="{% url 'dictionary:detail' word.id %}">{{ word.name }}</a>
+       </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No words are available.</p>
+{% endif %}
