@@ -1,3 +1,7 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'dictionary/style.css' %}">
+
 {% if latest_words_added %}
     <ul>
     {% for word in latest_words_added %}
