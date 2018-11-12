@@ -40,25 +40,25 @@ def base_word_antonyms():
 
 def base_word_stats():
     """Generates count of pos, definitions, synonyms, and antonyms"""
-    qs1 = (models.BaseWord.objects.all()
+    subq1 = (models.BaseWord.objects.all()
                  .filter(id=OuterRef('id'))
                  .annotate(pos_count=Count('formword__pos__name'))
           )
-    qs2 = (models.BaseWord.objects.all()
+    subq2 = (models.BaseWord.objects.all()
                  .filter(id=OuterRef('id'))
                  .annotate(synonym_count=
                     Count('formword__synonym__synonym__name'))
           )
-    qs3 = (models.BaseWord.objects.all()
+    subq3 = (models.BaseWord.objects.all()
                  .filter(id=OuterRef('id'))
                  .annotate(antonym_count=
                     Count('formword__antonym__antonym__name'))
           )
     qs = (models.BaseWord.objects.all()
                 .order_by('id')
-                .annotate(pos_count=Subquery(qs1.values('pos_count')))
-                .annotate(synonym_count=Subquery(qs2.values('synonym_count')))
-                .annotate(antonym_count=Subquery(qs3.values('antonym_count')))
+                .annotate(pos_count=Subquery(subq1.values('pos_count')))
+                .annotate(synonym_count=Subquery(subq2.values('synonym_count')))
+                .annotate(antonym_count=Subquery(subq3.values('antonym_count')))
         )
     sql_statement = 'create view base_word_stats as ' + str(qs.query)
     return sql_statement
