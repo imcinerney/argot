@@ -17,14 +17,16 @@ def scrape_word(word, search_synonym=False):
     Keyword arguments:
     word -- word to add to database
     search_synonym -- boolean to add all synonyms listed to database as well
+
+    Returns True if word found, False if not
     """
     url = 'https://www.merriam-webster.com/dictionary/' + word
     try:
         r = requests.get(url, timeout=10)
     except requests.exceptions.Timeout:
-        scrape_word(word, search_synonym)
-        return
-    if r.status_code != 200:
+        return scrape_word(word, search_synonym)
+    if r.status_code == 404:
+        return False
         print('The status code of the request is: {0}'.format(r.status_code))
     soup = BeautifulSoup(r.content, 'html5lib')
     def_wrapper = soup.find('div', {'id': 'definition-wrapper'})
@@ -46,6 +48,7 @@ def scrape_word(word, search_synonym=False):
                                                          name=spelling))
     if search_synonym:
         _add_synonyms(left_content, base_word_)
+    return True
 
 
 def load_list_of_words(filename):
@@ -331,7 +334,7 @@ def _clean_definition(definition, extra_text):
         def_text = def_text.replace(extra, '')
     def_text = def_text.replace('archaic :', 'archaic --')
     def_text = re.sub('\(see.*', '', def_text)
-    def_text = re.sub('sense [0-9]', '', def_text)
+    def_text = re.sub('sense [0-9][a-zA-Z]*', '', def_text)
     split_defs = def_text.split(':')
     p = re.compile('([a-zA-Z][a-zA-Z ,-\\\/()]*)')
     return [p.search(split_def).group().strip()
