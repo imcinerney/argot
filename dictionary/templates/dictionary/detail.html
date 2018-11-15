@@ -1,3 +1,8 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'dictionary/style.css' %}">
+
+
 <h1>{{ word }}</h1>
 <ul>
 {% for formword in word.formword_set.all %}
