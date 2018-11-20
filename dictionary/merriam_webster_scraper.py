@@ -17,20 +17,24 @@ def scrape_word(word, search_synonym=False):
     Keyword arguments:
     word -- word to add to database
     search_synonym -- boolean to add all synonyms listed to database as well
+
+    Returns True if word found, False if not
     """
     url = 'https://www.merriam-webster.com/dictionary/' + word
     try:
         r = requests.get(url, timeout=10)
     except requests.exceptions.Timeout:
-        scrape_word(word, search_synonym)
-        return
-    if r.status_code != 200:
+        return scrape_word(word, search_synonym)
+    if r.status_code == 404:
+        return False
         print('The status code of the request is: {0}'.format(r.status_code))
     soup = BeautifulSoup(r.content, 'html5lib')
     def_wrapper = soup.find('div', {'id': 'definition-wrapper'})
     left_content = def_wrapper.find('div', {'id' : 'left-content'})
-    (word_name, base_word_, variant_word_set) = \
-        _add_base_form_def_pos_example_to_db(left_content)
+    variant_word_set = models.VariantWord.objects.all().values_list('name',
+                                                                    flat=True)
+    (word_name, base_word_) = _handle_main_dictionary_entry(left_content,
+                                                            variant_word_set)
     alternate_forms = left_content.find_all('span', {'class' : 'vg-ins'})
     different_spellings = set()
     different_spellings.add(word_name)
@@ -46,6 +50,7 @@ def scrape_word(word, search_synonym=False):
                                                          name=spelling))
     if search_synonym:
         _add_synonyms(left_content, base_word_)
+    return True
 
 
 def load_list_of_words(filename):
@@ -222,32 +227,74 @@ def _scrape_alternative_synonym_section(left_content):
     return pos_synonym_list
 
 
-def _add_base_form_def_pos_example_to_db(left_content):
-    """Adds BaseWord, PartOfSpeech, FormWord, and WordDefinition to db"""
+def _handle_main_dictionary_entry(left_content, variant_word_set):
+    """Searches for content containing the main aspects of a dictionary entry
+
+    Keyword argument:
+    left_content -- section of wepage containing the text of the dictionary
+    entries
+    variant_word_set -- list of all spellings of words currently in the
+    database
+
+    Searches for all of the entires for a word and then passes the information
+    along to helper function.
+    """
     entries = (left_content.find_all('div', {'class': 'entry-header'},
                recursive=False))
     i = 1
-    variant_word_set = models.VariantWord.objects.all().values_list('name',
-                                                                    flat=True)
-    #Loop through all definition sections, broken down by part of speech
-    for entry in entries:
-        word_name = entry.find('div').find(['h1', 'p'], {'class' : 'hword'}) \
-                         .getText().lower()
-        #If we already have the word name in the dictionary, then return base
-        if word_name in variant_word_set:
-            base_word_, _ = models.BaseWord.objects \
-                                  .get_or_create(name=word_name)
-            return (word_name, base_word_, variant_word_set)
-        base_word_, _ = models.BaseWord.objects.get_or_create(name=word_name)
-        pos_ = _find_pos(entry)
-        if pos_ is None:
-            continue
-        form_word_, _ = (models.FormWord.objects
-                                        .get_or_create(pos=pos_,
-                                                       base_word=base_word_,))
-        _add_definition_and_examples(i, left_content, form_word_)
-        i += 1
-    return (word_name, base_word_, variant_word_set)
+    first_entry = entries[0]
+    remaining_entries = entries[1:]
+    (already_entered, base_word_, word_name) = _add_base_and_form(first_entry,
+                                                  i, left_content,
+                                                  variant_word_set)
+    if not already_entered:
+        #Loop through all definition sections, broken down by part of speech
+        for entry in remaining_entries:
+            i += 1
+            #We only use the return values for the first entry
+            _ = _add_base_and_form(first_entry, i, left_content,
+                                   variant_word_set)
+        return (word_name, base_word_)
+    else:
+        return (word_name, base_word_)
+
+
+def _add_base_and_form(entry, i, left_content, variant_word_set):
+    """Function to add baseword and formword entries to db
+
+    Keyword arguments:
+    entry -- section of page that contains information on the word name and
+    part of speech
+    i -- used to identify which section the corresponding defintion and example
+    is located
+    left_content -- main section that contains all information on the entries
+    for words
+    variant_word_set -- list of all spellings of words currently in the
+    database
+
+    Returns:
+    (already_entered, base_word_, word_name)
+    already_entered -- Boolean if the word is already entered. If true, we don't
+    want to re-enter the examples and dictionary entries
+    base_word_ -- BaseWord object for the dictionary page
+    word_name -- The word_name as appears on the webpage (could be diff from
+    what gets searched)
+    """
+    word_name = entry.find('div').find(['h1', 'p'], {'class' : 'hword'}) \
+                     .getText().lower()
+    #If we already have the word name in the dictionary, then return base
+    if word_name in variant_word_set:
+        base_word_ = models.VariantWord.objects.get(name=word_name).base_word
+        return (True, base_word_, word_name)
+    base_word_, _ = models.BaseWord.objects.get_or_create(name=word_name)
+    pos_ = _find_pos(entry)
+    if pos_ is None:
+        return (True, None, word_name)
+    form_word_, _ = (models.FormWord.objects
+                                    .get_or_create(pos=pos_,
+                                                   base_word=base_word_,))
+    _add_definition_and_examples(i, left_content, form_word_)
+    return (False, base_word_, word_name)
 
 
 def _add_definition_and_examples(dictionary_entry_num, left_content,
@@ -331,7 +378,7 @@ def _clean_definition(definition, extra_text):
         def_text = def_text.replace(extra, '')
     def_text = def_text.replace('archaic :', 'archaic --')
     def_text = re.sub('\(see.*', '', def_text)
-    def_text = re.sub('sense [0-9]', '', def_text)
+    def_text = re.sub('sense [0-9][a-zA-Z]?', '', def_text)
     split_defs = def_text.split(':')
     p = re.compile('([a-zA-Z][a-zA-Z ,-\\\/()]*)')
     return [p.search(split_def).group().strip()

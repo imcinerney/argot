@@ -1,0 +1,14 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'dictionary/style.css' %}">
+
+
+<h1>{{ word }}</h1>
+<ul>
+{% for formword in word.formword_set.all %}
+    <h2>{{ formword.pos }}</h2>
+    {% for def in formword.worddefinition_set.all %}
+      <li>{{ def.definition }}</li>
+    {% endfor %}
+{% endfor %}
+</ul>
