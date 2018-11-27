@@ -259,7 +259,7 @@ def _handle_main_dictionary_entry(left_content, variant_word_set):
         for entry in remaining_entries:
             i += 1
             #We only use the return values for the first entry
-            _ = _add_base_and_form(first_entry, i, left_content,
+            _ = _add_base_and_form(entry, i, left_content,
                                    variant_word_set)
         return (word_name, base_word_)
     else:
@@ -324,21 +324,24 @@ def _add_definition_and_examples(dictionary_entry_num, left_content,
     """
     def_entry_num = 'dictionary-entry-' + str(dictionary_entry_num)
     def_entry = left_content.find('div', {'id' :  def_entry_num})
-    definitions = def_entry.find_all('span', {'class' : 'dtText'})
-    for definition in definitions:
-        #These are examples or quotes we don't need in the definition
-        extra_text = definition.find_all('span', {'class' : 'ex-sent'})
-        examples = definition.find_all('span', {'class' : 't'})
-        clean_defs = _clean_definition(definition, extra_text)
-        for clean_def in clean_defs:
-            word_def, _ = models.WordDefinition.objects \
-                                .get_or_create(form_word=form_word_,
-                                               definition=clean_def)
-            for example in examples:
-                example_text = _clean_example_text(example.getText())
-                _, _ = models.ExampleSentence.objects \
-                             .get_or_create(definition=word_def,
-                                            sentence=example_text)
+    definition_headers = def_entry.find_all('div', {'class' : 'vg'},
+                                            recursive=False)
+    for def_header in definition_headers:
+        definitions = def_header.find_all('span', {'class' : 'dtText'})
+        for definition in definitions:
+            #These are examples or quotes we don't need in the definition
+            extra_text = definition.find_all('span', {'class' : 'ex-sent'})
+            examples = definition.find_all('span', {'class' : 't'})
+            clean_defs = _clean_definition(definition, extra_text)
+            for clean_def in clean_defs:
+                word_def, _ = models.WordDefinition.objects \
+                                    .get_or_create(form_word=form_word_,
+                                                   definition=clean_def)
+                for example in examples:
+                    example_text = _clean_example_text(example.getText())
+                    _, _ = models.ExampleSentence.objects \
+                                 .get_or_create(definition=word_def,
+                                                sentence=example_text)
 
 
 def _find_pos(entry):
@@ -384,10 +387,11 @@ def _clean_definition(definition, extra_text):
         extra = text.getText().strip()
         def_text = def_text.replace(extra, '')
     def_text = def_text.replace('archaic :', 'archaic --')
-    def_text = re.sub('\(see.*', '', def_text)
+    def_text = re.sub('\(see.*\)', '', def_text)
     def_text = re.sub('sense [0-9][a-zA-Z]?', '', def_text)
+    def_text = re.sub(' +', ' ', def_text)
     split_defs = def_text.split(':')
-    p = re.compile('([a-zA-Z][a-zA-Z ,-\\\/()]*)')
+    p = re.compile('([a-zA-Z][a-zA-Z ,-\\\/()\']*)')
     return [p.search(split_def).group().strip()
             for split_def in split_defs
             if p.search(split_def) is not None]
