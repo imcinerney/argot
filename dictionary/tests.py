@@ -124,3 +124,11 @@ class BackDefinitionEntryTest(TestCase):
                             "Arctic Ocean",
                        ]
         self.assertEqual(db_definitions, definitions)
+
+
+class BolsterDefinitionEntryTest(TestCase):
+    pass
+
+
+class CapriciousPrecipitateDefinitionEntryTest(TestCase):
+    pass
