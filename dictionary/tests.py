@@ -28,16 +28,20 @@ class BaseWordModelTest(TestCase):
 
 class ScraperHelperFunctionTest(TestCase):
     """Class to test all of the non-web functions"""
-    def setUp(self):
-        back_html = os.path.join('dictionary', 'html_test_pages', 'back.html')
-        soup = BeautifulSoup(open(back_html), 'html5lib')
-        mws._manage_dictionary_entries(soup, 'back', False)
-
     def test_clean_pos_text(self):
         """Test a number of cases of the clean pos text function"""
         self.assertEqual(mws._clean_pos_text('noun21-30asdf'), 'noun')
         self.assertEqual(mws._clean_pos_text('verb:'), 'verb')
         self.assertEqual(mws._clean_pos_text('abverb-sense1:'), 'abverb')
+
+
+class BackDefinitionEntryTest(TestCase):
+    """Class to test that the scraper successfully extracts info from the
+    entry of the word 'back'"""
+    def setUp(self):
+        back_html = os.path.join('dictionary', 'html_test_pages', 'back.html')
+        soup = BeautifulSoup(open(back_html), 'html5lib')
+        mws._manage_dictionary_entries(soup, 'back', False)
 
     def test_db_created_successfully(self):
         base_words = BaseWord.objects.all()
