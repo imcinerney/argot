@@ -27,8 +27,15 @@ def scrape_word(word, search_synonym=False):
         return scrape_word(word, search_synonym)
     if r.status_code == 404:
         return False
-        print('The status code of the request is: {0}'.format(r.status_code))
     soup = BeautifulSoup(r.content, 'html5lib')
+    _manage_dictionary_entries(soup, word, search_synonym)
+    return True
+
+
+def _manage_dictionary_entries(soup, word, search_synonym):
+    """Searches soup for desired parts of html and directs to correct functions
+    to fill out all necessary tables
+    """
     def_wrapper = soup.find('div', {'id': 'definition-wrapper'})
     left_content = def_wrapper.find('div', {'id' : 'left-content'})
     variant_word_set = models.VariantWord.objects.all().values_list('name',

@@ -24,6 +24,7 @@ class BaseWord(models.Model):
 class PartOfSpeech(models.Model):
     """Part of speech of a word"""
     name = models.CharField(max_length=15, unique=True)
+
     def __str__(self):
         return f'{self.name}'
 
