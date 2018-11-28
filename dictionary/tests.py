@@ -328,36 +328,3 @@ class EndorseDefinitionEntryTest(TestCase):
         db_variant_words.sort()
         variant_word_list.sort()
         self.assertEqual(db_variant_words, variant_word_list)
-        # db_definitions = list(WordDefinition.objects.all()
-        #                                     .values_list('definition',
-        #                                                   flat=True))
-        # definitions = [
-        #                 'attracting or seeking to attract attention, '
-        #                     'admiration, or envy often by gaudiness or '
-        #                     'obviousness',
-        #                 'overly elaborate or conspicuous',
-        #                 'characterized by, fond of, or evincing ostentation',
-        #                 'the conscious subjective aspect of an emotion '
-        #                     'considered apart from bodily changes',
-        #                 'a set of observable manifestations of a subjectively '
-        #                     'experienced emotion',
-        #                 'feeling, affection',
-        #                 'to make a display of liking or using',
-        #                 'cultivate',
-        #                 'to put on a pretense of',
-        #                 'feign',
-        #                 'to have affection for',
-        #                 'to be given to',
-        #                 'fancy',
-        #                 'to tend toward',
-        #                 'frequent',
-        #                 'to aim at',
-        #                 'incline',
-        #                 'to produce an effect upon',
-        #                 'such as',
-        #                 'to produce a material influence upon or alteration in',
-        #                 "to act upon (a person, a person's mind or feelings, "
-        #                     "etc.) so as to effect a response",
-        #                 'influence',
-        #                ]
-        # self.assertEqual(db_definitions, definitions)
