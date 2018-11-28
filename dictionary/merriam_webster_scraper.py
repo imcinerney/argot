@@ -32,32 +32,62 @@ def scrape_word(word, search_synonym=False):
     return True
 
 
+def fill_in_synonyms():
+    """Adds the synonyms for all basewords that haven't been added yet"""
+    qs = models.BaseWord.objects.filter(searched_synonym=False)
+    for word in qs:
+        print(word.name)
+        scrape_word(word.name, search_synonym=True)
+        time.sleep(2)
+
+
 def _manage_dictionary_entries(soup, word, search_synonym):
     """Searches soup for desired parts of html and directs to correct functions
     to fill out all necessary tables
     """
     def_wrapper = soup.find('div', {'id': 'definition-wrapper'})
     left_content = def_wrapper.find('div', {'id' : 'left-content'})
+    #means that there is probably a root word elsewhere
+    first_entry = left_content.find('div', {'id' : 'dictionary-entry-1'})
+    new_word = first_entry.find('a', {'class' : 'cxt'})
+    if new_word is not None:
+        time.sleep(1)
+        new_word = new_word.getText().strip()
+        print(f'revising search from {word} to {new_word}')
+        return scrape_word(new_word, search_synonym)
     variant_word_set = models.VariantWord.objects.all().values_list('name',
                                                                     flat=True)
     (word_name, base_word_) = _handle_main_dictionary_entry(left_content,
                                                             variant_word_set,
                                                             search_synonym)
+    if base_word_ is None:
+        return None
+    different_spellings = _compile_alternate_spellings(left_content, word_name,
+                                                       word, variant_word_set)
+    for spelling in different_spellings:
+        _, _ = (models.VariantWord.objects.get_or_create(base_word=base_word_,
+                                                         name=spelling))
+    if search_synonym:
+        _add_synonyms(left_content, base_word_)
+
+
+def _compile_alternate_spellings(left_content, word_name, word,
+                                 variant_word_set):
+    """Search the page for the various different various forms for a word"""
     alternate_forms = left_content.find_all('span', {'class' : 'vg-ins'})
+    variants = left_content.find_all('a', {'class' : 'va-link'})
     different_spellings = set()
     different_spellings.add(word_name)
     different_spellings.add(word)
+    for variant in variants:
+        different_spellings.add(variant.getText().strip())
     for alternate_form in alternate_forms:
          different_forms = alternate_form.find_all('span', {'class' : 'if'})
          for different_form in different_forms:
              different_spellings.add(different_form.getText().strip())
     different_spellings = [spelling for spelling in different_spellings
                            if spelling not in variant_word_set]
-    for spelling in different_spellings:
-        _, _ = (models.VariantWord.objects.get_or_create(base_word=base_word_,
-                                                         name=spelling))
-    if search_synonym:
-        _add_synonyms(left_content, base_word_)
+    return different_spellings
 
 
 def load_list_of_words(filename):
@@ -294,6 +324,9 @@ def _add_base_and_form(entry, i, left_content, variant_word_set,
     """
     word_name = entry.find('div').find(['h1', 'p'], {'class' : 'hword'}) \
                      .getText().lower()
+    p = re.compile('([A-z-]*)')
+    match = p.search(word_name)
+    word_name = match.group(0)
     #If we already have the word name in the dictionary, then return base
     if word_name in variant_word_set:
         base_word_ = models.VariantWord.objects.get(name=word_name).base_word
