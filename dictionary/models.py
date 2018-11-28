@@ -8,6 +8,7 @@ class BaseWord(models.Model):
     class. Links to different definitions.
     """
     name = models.CharField(max_length=50, unique=True)
+    searched_synonym = models.BooleanField(default=False)
 
     def return_pos_list(self):
         """Returns the list of parts of speech associated for a word"""
@@ -15,10 +16,11 @@ class BaseWord(models.Model):
         return [form_word.pos.name for form_word in form_words.all()]
 
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.name}, searched_synonym: {self.searched_synonym}'
 
     def __repr__(self):
-        return f'BaseWord({self.id!r}, {self.name!r})'
+        return (f'BaseWord({self.id!r}, {self.name!r}, '
+                f'{self.searched_synonym!r})')
 
 
 class PartOfSpeech(models.Model):

@@ -41,7 +41,8 @@ def _manage_dictionary_entries(soup, word, search_synonym):
     variant_word_set = models.VariantWord.objects.all().values_list('name',
                                                                     flat=True)
     (word_name, base_word_) = _handle_main_dictionary_entry(left_content,
-                                                            variant_word_set)
+                                                            variant_word_set,
+                                                            search_synonym)
     alternate_forms = left_content.find_all('span', {'class' : 'vg-ins'})
     different_spellings = set()
     different_spellings.add(word_name)
@@ -57,7 +58,6 @@ def _manage_dictionary_entries(soup, word, search_synonym):
                                                          name=spelling))
     if search_synonym:
         _add_synonyms(left_content, base_word_)
-    return True
 
 
 def load_list_of_words(filename):
@@ -234,7 +234,8 @@ def _scrape_alternative_synonym_section(left_content):
     return pos_synonym_list
 
 
-def _handle_main_dictionary_entry(left_content, variant_word_set):
+def _handle_main_dictionary_entry(left_content, variant_word_set,
+                                  search_synonym):
     """Searches for content containing the main aspects of a dictionary entry
 
     Keyword argument:
@@ -242,6 +243,7 @@ def _handle_main_dictionary_entry(left_content, variant_word_set):
     entries
     variant_word_set -- list of all spellings of words currently in the
     database
+    search_synonym -- whether or not we will search for synonyms for the word
 
     Searches for all of the entires for a word and then passes the information
     along to helper function.
@@ -253,20 +255,22 @@ def _handle_main_dictionary_entry(left_content, variant_word_set):
     remaining_entries = entries[1:]
     (already_entered, base_word_, word_name) = _add_base_and_form(first_entry,
                                                   i, left_content,
-                                                  variant_word_set)
+                                                  variant_word_set,
+                                                  search_synonym)
     if not already_entered:
         #Loop through all definition sections, broken down by part of speech
         for entry in remaining_entries:
             i += 1
             #We only use the return values for the first entry
             _ = _add_base_and_form(entry, i, left_content,
-                                   variant_word_set)
+                                   variant_word_set, search_synonym)
         return (word_name, base_word_)
     else:
         return (word_name, base_word_)
 
 
-def _add_base_and_form(entry, i, left_content, variant_word_set):
+def _add_base_and_form(entry, i, left_content, variant_word_set,
+                       search_synonym):
     """Function to add baseword and formword entries to db
 
     Keyword arguments:
@@ -278,6 +282,7 @@ def _add_base_and_form(entry, i, left_content, variant_word_set):
     for words
     variant_word_set -- list of all spellings of words currently in the
     database
+    search_synonym -- whether or not we will search for synonyms for the word
 
     Returns:
     (already_entered, base_word_, word_name)
@@ -292,8 +297,12 @@ def _add_base_and_form(entry, i, left_content, variant_word_set):
     #If we already have the word name in the dictionary, then return base
     if word_name in variant_word_set:
         base_word_ = models.VariantWord.objects.get(name=word_name).base_word
+        if base_word_.searched_synonym == False & search_synonym:
+            base_word_.searched_synonym = True
+            base_word_.save()
         return (True, base_word_, word_name)
-    base_word_, _ = models.BaseWord.objects.get_or_create(name=word_name)
+    base_word_, _ = models.BaseWord.objects.get_or_create(name=word_name,
+                        searched_synonym=search_synonym)
     pos_ = _find_pos(entry)
     if pos_ is None:
         return (True, None, word_name)

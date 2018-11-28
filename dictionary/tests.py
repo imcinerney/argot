@@ -1,6 +1,5 @@
 from django.test import TestCase
 
-# Create your tests here.
 from .models import BaseWord, FormWord, PartOfSpeech, WordDefinition
 from dictionary import merriam_webster_scraper as mws
 from bs4 import BeautifulSoup
@@ -177,7 +176,8 @@ class CapriciousPrecipitateDefinitionEntryTest(TestCase):
     def test_db_created_successfully(self):
         db_base_words = BaseWord.objects.all()
         base_word_list = ['precipitate', 'capricious']
-        self.assertEqual(list(db_base_words.values_list('name', flat=True)),
+        self.assertEqual(list(db_base_words.order_by('id')
+                                           .values_list('name', flat=True)),
                          base_word_list)
         db_pos_list = db_base_words[0].return_pos_list()
         pos_list = [
