@@ -46,7 +46,7 @@ class BackDefinitionEntryTest(TestCase):
     def test_db_created_successfully(self):
         base_words = BaseWord.objects.all()
         self.assertEqual(list(base_words.values_list('name', flat=True)),
-                                                     ['back'])
+                         ['back'])
         db_pos_list = base_words[0].return_pos_list()
         pos_list = ['noun',
                     'adverb',
@@ -127,8 +127,91 @@ class BackDefinitionEntryTest(TestCase):
 
 
 class BolsterDefinitionEntryTest(TestCase):
-    pass
+    """Class to test that the scraper successfully extracts info from the
+    entry of the word 'bolster'"""
+    def setUp(self):
+        bolster_html = os.path.join('dictionary', 'html_test_pages',
+                                    'bolster.html')
+        soup = BeautifulSoup(open(bolster_html, encoding='utf-8'), 'html5lib')
+        mws._manage_dictionary_entries(soup, 'bolster', False)
+
+    def test_db_created_successfully(self):
+        base_words = BaseWord.objects.all()
+        self.assertEqual(list(base_words.values_list('name', flat=True)),
+                         ['bolster'])
+        db_pos_list = base_words[0].return_pos_list()
+        pos_list = ['noun',
+                    'verb',
+                   ]
+        self.assertEqual(db_pos_list, pos_list)
+        db_definitions = list(WordDefinition.objects.all()
+                                            .values_list('definition',
+                                                          flat=True))
+        definitions = [
+                        'a long pillow or cushion',
+                        'a structural part designed to eliminate friction or '
+                            'provide support or bearing',
+                        'to support with or as if with a bolster',
+                        'reinforce',
+                        'to give a boost to',
+                       ]
+        self.assertEqual(db_definitions, definitions)
 
 
 class CapriciousPrecipitateDefinitionEntryTest(TestCase):
-    pass
+    """Class to test that the scraper successfully extracts info from the
+    entry of the word 'capricious' and then 'precipitate'"""
+    def setUp(self):
+        precipitate_html = os.path.join('dictionary', 'html_test_pages',
+                                        'precipitate.html')
+        soup = BeautifulSoup(open(precipitate_html, encoding='utf-8'),
+                             'html5lib')
+        mws._manage_dictionary_entries(soup, 'precipitate', False)
+        capricious_html = os.path.join('dictionary', 'html_test_pages',
+                                       'capricious.html')
+        soup = BeautifulSoup(open(capricious_html, encoding='utf-8'),
+                                  'html5lib')
+        mws._manage_dictionary_entries(soup, 'capricious', False)
+
+
+    def test_db_created_successfully(self):
+        db_base_words = BaseWord.objects.all()
+        base_word_list = ['precipitate', 'capricious']
+        self.assertEqual(list(db_base_words.values_list('name', flat=True)),
+                         base_word_list)
+        db_pos_list = db_base_words[0].return_pos_list()
+        pos_list = [
+                    'verb',
+                    'noun',
+                    'adjective',
+                   ]
+        db_pos_list = db_base_words[1].return_pos_list()
+        pos_list = ['adjective']
+        self.assertEqual(db_pos_list, pos_list)
+        db_definitions = list(WordDefinition.objects.all()
+                                            .values_list('definition',
+                                                          flat=True))
+        definitions = [
+                        'to throw violently',
+                        'hurl',
+                        'to throw down',
+                        'to bring about especially abruptly',
+                        'to cause to separate from solution or suspension',
+                        'to cause (vapor) to condense and fall or deposit',
+                        'to fall headlong',
+                        'to fall or come suddenly into some condition',
+                        'to move or act with violent or unwise speed',
+                        'to separate from solution or suspension',
+                        'to condense from a vapor and fall as rain or snow',
+                        'a substance separated from a solution or suspension by'
+                            ' chemical or physical change usually as an '
+                            'insoluble amorphous or crystalline solid',
+                        'a product, result, or outcome of some process or '
+                            'action',
+                        'falling, flowing, or rushing with steep descent',
+                        'precipitous, steep',
+                        'exhibiting violent or unwise speed',
+                        'governed or characterized by caprice',
+                        'impulsive, unpredictable',
+                       ]
+        self.assertEqual(db_definitions, definitions)
