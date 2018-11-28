@@ -1,6 +1,7 @@
 from django.test import TestCase
 
-from .models import BaseWord, FormWord, PartOfSpeech, WordDefinition
+from .models import (BaseWord, FormWord, PartOfSpeech, WordDefinition,
+    VariantWord)
 from dictionary import merriam_webster_scraper as mws
 from bs4 import BeautifulSoup
 import os
@@ -288,3 +289,75 @@ class OstentatiousAffectedDefinitionEntryTest(TestCase):
                         'influence',
                        ]
         self.assertEqual(db_definitions, definitions)
+
+
+class EndorseDefinitionEntryTest(TestCase):
+    """Class to test that the scraper successfully extracts info from the
+    entry of the word 'Endorse'
+
+    We want to make sure that the 'indorse' spelling is stored in the variant
+    word list
+    """
+    def setUp(self):
+        endorse_html = os.path.join('dictionary', 'html_test_pages',
+                                        'endorse.html')
+        soup = BeautifulSoup(open(endorse_html, encoding='utf-8'),
+                             'html5lib')
+        mws._manage_dictionary_entries(soup, 'endorse', False)
+
+
+    def test_db_created_successfully(self):
+        db_base_words = BaseWord.objects.all()
+        base_word_list = ['endorse']
+        self.assertEqual(list(db_base_words.order_by('id')
+                                           .values_list('name', flat=True)),
+                         base_word_list)
+        db_pos_list = db_base_words[0].return_pos_list()
+        pos_list = ['verb',]
+        self.assertEqual(db_pos_list, pos_list)
+        db_variant_words = list(VariantWord.objects.all()
+                                           .values_list('name', flat=True))
+        variant_word_list = [
+                             'endorse',
+                             'endorsed',
+                             'endorsing',
+                             'indorse',
+                             'indorsed',
+                             'indorsing',
+                             ]
+        db_variant_words.sort()
+        variant_word_list.sort()
+        self.assertEqual(db_variant_words, variant_word_list)
+        # db_definitions = list(WordDefinition.objects.all()
+        #                                     .values_list('definition',
+        #                                                   flat=True))
+        # definitions = [
+        #                 'attracting or seeking to attract attention, '
+        #                     'admiration, or envy often by gaudiness or '
+        #                     'obviousness',
+        #                 'overly elaborate or conspicuous',
+        #                 'characterized by, fond of, or evincing ostentation',
+        #                 'the conscious subjective aspect of an emotion '
+        #                     'considered apart from bodily changes',
+        #                 'a set of observable manifestations of a subjectively '
+        #                     'experienced emotion',
+        #                 'feeling, affection',
+        #                 'to make a display of liking or using',
+        #                 'cultivate',
+        #                 'to put on a pretense of',
+        #                 'feign',
+        #                 'to have affection for',
+        #                 'to be given to',
+        #                 'fancy',
+        #                 'to tend toward',
+        #                 'frequent',
+        #                 'to aim at',
+        #                 'incline',
+        #                 'to produce an effect upon',
+        #                 'such as',
+        #                 'to produce a material influence upon or alteration in',
+        #                 "to act upon (a person, a person's mind or feelings, "
+        #                     "etc.) so as to effect a response",
+        #                 'influence',
+        #                ]
+        # self.assertEqual(db_definitions, definitions)
