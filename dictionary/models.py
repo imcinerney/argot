@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class BaseWord(models.Model):
@@ -120,3 +121,15 @@ class Antonym(models.Model):
 
     def __repr__(self):
         return f'Antonym({self.id!r}, {self.form_word!r}, {self.antonym!r})'
+
+
+class WordListOwner(models.Model):
+    """Lists the name for a list and the user who is using it"""
+    list_name = models.CharField(max_length=50)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class WordList(models.Model):
+    """Conatains the words contained for a given list"""
+    word_list = models.ForeignKey(WordListOwner, on_delete=models.CASCADE)
+    word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
