@@ -40,13 +40,20 @@ class RegistrationForm(forms.Form):
 
     def clean_password1(self):
         password1 = self.cleaned_data['password1']
-        password2 = self.cleaned_data['password1']
         if len(password1) < 4:
             raise ValidationError('Password cannot be fewer than 4 characters')
         if len(password1) > 20:
             raise ValidationError('Password cannot be greater than 20 characters')
         if re.search('[0-9]', password1) is not None:
             raise ValidationError('Cannot have numbers in password')
-        if password1 != password2:
-            raise ValidationError('Passwords do not match')
         return password1
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username')
+        pw1 = cleaned_data.get('password1')
+        pw2 = cleaned_data.get('password2')
+        if pw1 != pw2:
+            raise ValidationError('Passwords are not equal')
+        if username == pw1:
+            raise ValidationError('Your password cannot be your username!')
