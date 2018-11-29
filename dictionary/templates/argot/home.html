@@ -20,15 +20,19 @@
    <p>&nbsp;</p>
    Word List to Checkout:
    <p>&nbsp;</p>
+   {% if user.is_authenticated %}
+   Click here to browse your word lists
+   {% else %}
+     <form method='POST' action="{% url 'user_login' %}">
+       {% csrf_token %}
 
-   <form method='POST' action="{% url 'login' %}">
-     {% csrf_token %}
+       Username: {{ form.username }}<input type="text" name='username'>
+       <p></p>
+       Password: {{ form.password }}<input type="password" name="password" >
+       <input type="submit" value='Login'/>
+      </form>
+      <p>&nbsp;</p>
+      <p>Haven't made an account yet? Sign up <a href="/register"> here</a></p>
+ {% endif %}
 
-     Username: {{ form.username }}<input type="text" name='username'>
-     <p></p>
-     Password: {{ form.password }}<input type="text" name="password" >
-     <input type="submit" value='getme'/>
-    </form>
-    <p>&nbsp;</p>
-    <p>Haven't made an account yet? Sign up <a href="/register"> here</a></p>
 </p>

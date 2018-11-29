@@ -4,6 +4,7 @@ from dictionary import models
 from dictionary import merriam_webster_scraper as mws
 from argot.forms import LoginForm, RegistrationForm
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
 
 
 def home(request):
@@ -37,7 +38,6 @@ def register(request):
 
 
 def create_user(request):
-    print(request.POST)
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -45,22 +45,26 @@ def create_user(request):
             username = form.cleaned_data['username']
             user = User.objects.create_user(username=username,
                                             password=password)
-            return HttpResponse(f'User created successfully!')
+            login(request, user)
+            return render(request, 'argot/successful_registration.html')
         else:
            return HttpResponse(f'validation error: {form.errors}')
     else:
         return HttpResponseRedirect('/')
 
-def login(request):
+
+def user_login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             password = form.cleaned_data['password']
             username = form.cleaned_data['username']
-            user = User.objects.create_user(username=username,
-                                            password=password)
-            return HttpResponse(f'yay valid form, user is {username}, '
-                                f'pw is: {password}')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return HttpResponseRedirect('/')
+            else:
+                return HttpResponse('Incorrect pw, please guess again')
         else:
             return HttpResponse(f'boo invalid form error: {form.errors}')
     else:
