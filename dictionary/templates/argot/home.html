@@ -20,5 +20,13 @@
    <p>&nbsp;</p>
    Word List to Checkout:
    <p>&nbsp;</p>
-   Login:
+
+   <form method='POST' action="{% url 'login' %}">
+     {% csrf_token %}
+
+     Username: {{ form.username }}<input type="text" name='username'>
+     <p></p>
+     Password: {{ form.password }}<input type="text" name="password" >
+     <input type="submit" value='getme'/>
+    </form>
 </p>

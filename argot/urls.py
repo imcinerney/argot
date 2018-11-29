@@ -22,4 +22,5 @@ urlpatterns = [
     path('', home_views.home, name='home'),
     path('admin/', admin.site.urls),
     path('dictionary/', include('dictionary.urls')),
+    path('login', home_views.login, name='login'),
 ]
