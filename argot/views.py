@@ -3,6 +3,7 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from dictionary import models
 from dictionary import merriam_webster_scraper as mws
 from argot.forms import LoginForm
+from django.contrib.auth.models import User
 
 
 def home(request):
@@ -31,12 +32,14 @@ def home(request):
     return render(request, 'argot/home.html')
 
 
-
 def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            return HttpResponse('yay valid form')
+            password = form.cleaned_data['password']
+            username = form.cleaned_data['username']
+            user = User.objects.create_user(username=username, password=password)
+            return HttpResponse(f'yay valid form, user is {username}, pw is: {password}')
         else:
             return HttpResponse(f'boo invalid form error: {form.errors}')
     else:
