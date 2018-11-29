@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from dictionary import models
 from dictionary import merriam_webster_scraper as mws
-from argot.forms import LoginForm
+from argot.forms import LoginForm, RegistrationForm
 from django.contrib.auth.models import User
 
 
@@ -32,15 +32,36 @@ def home(request):
     return render(request, 'argot/home.html')
 
 
+def register(request):
+    return render(request, 'argot/register.html')
+
+
+def create_user(request):
+    print(request.POST)
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            password = form.cleaned_data['password1']
+            username = form.cleaned_data['username']
+            user = User.objects.create_user(username=username,
+                                            password=password)
+            return HttpResponse(f'User created successfully!')
+        else:
+           return HttpResponse(f'validation error: {form.errors}')
+    else:
+        return HttpResponseRedirect('/')
+
 def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             password = form.cleaned_data['password']
             username = form.cleaned_data['username']
-            user = User.objects.create_user(username=username, password=password)
-            return HttpResponse(f'yay valid form, user is {username}, pw is: {password}')
+            user = User.objects.create_user(username=username,
+                                            password=password)
+            return HttpResponse(f'yay valid form, user is {username}, '
+                                f'pw is: {password}')
         else:
             return HttpResponse(f'boo invalid form error: {form.errors}')
     else:
-        return HttpResponse(f'You got here without posting')
+        return HttpResponseRedirect('/')
