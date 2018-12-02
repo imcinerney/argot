@@ -1,12 +1,13 @@
 <h1> Sign up to keep track of word lists you create </h1>
 <p>Username and password must be between 4 and 20 characters and not contain any
-  numbers<p>
+  numbers</p>
 <form method='POST' action="{% url 'create_user' %}">
   {% csrf_token %}
 
   Username: {{ form.username }}<input type="text" name='username'>
   <p></p>
   Password:  {{ form.password1 }}<input type="password" name="password1" >
+  <p></p>
   Confirm Password:  {{ form.password2 }}<input type="password" name="password2" >
   <input type="submit" value='register'/>
  </form>
