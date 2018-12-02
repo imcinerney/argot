@@ -2,3 +2,4 @@ django
 sqlparse
 requests
 beautifulsoup4
+html5lib
