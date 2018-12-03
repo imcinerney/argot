@@ -4,7 +4,7 @@ from dictionary import models
 from dictionary import merriam_webster_scraper as mws
 from argot.forms import LoginForm, RegistrationForm
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 
 def home(request):
@@ -38,6 +38,9 @@ def register(request):
 
 
 def create_user(request):
+    """Registers users, validates password and username requirements, and then
+    logs in
+    """
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -69,3 +72,8 @@ def user_login(request):
             return HttpResponse(f'boo invalid form error: {form.errors}')
     else:
         return HttpResponseRedirect('/')
+
+
+def user_logout(request):
+    logout(request)
+    return HttpResponseRedirect('/')

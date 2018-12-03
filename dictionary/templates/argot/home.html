@@ -22,6 +22,8 @@
    <p>&nbsp;</p>
    {% if user.is_authenticated %}
    Click here to browse your word lists
+   <p></p>
+   <a href="#"><button>Logout</button></a>
    {% else %}
      <form method='POST' action="{% url 'user_login' %}">
        {% csrf_token %}
