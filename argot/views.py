@@ -51,7 +51,8 @@ def create_user(request):
             login(request, user)
             return render(request, 'argot/successful_registration.html')
         else:
-           return HttpResponse(f'validation error: {form.errors}')
+            return render(request, 'argot/registration_error.html',
+                                   {'form': form})
     else:
         return HttpResponseRedirect('/')
 
