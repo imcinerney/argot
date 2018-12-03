@@ -128,6 +128,10 @@ class WordListOwner(models.Model):
     list_name = models.CharField(max_length=50)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    @property
+    def word_list_length(self):
+        list_of_words = self.wordlist_set.all()
+        return len(list_of_words)
 
 class WordList(models.Model):
     """Conatains the words contained for a given list"""

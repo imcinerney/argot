@@ -78,3 +78,13 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return HttpResponseRedirect('/')
+
+
+def word_lists(request):
+    if request.user.is_authenticated:
+        user = request.user
+        word_lists = user.wordlistowner_set.all()
+        return render(request, 'argot/word_lists.html',
+                      {'word_lists': word_lists})
+    else:
+        return HttpResponseRedirect('/')
