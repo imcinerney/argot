@@ -30,3 +30,14 @@ def view_word_list(request, word_owner_id):
     word_list_owner = get_object_or_404(models.WordListOwner, pk=word_owner_id)
     return render(request, 'dictionary/view_word_list.html',
                   {'word_list_owner' : word_list_owner})
+
+
+def add_words_to_word_list(request):
+    if request.method == 'POST' and request.user.is_authenticated:
+        form = WordListOwnerForm(request.POST)
+        if form.is_valid():
+            return HttpResponse('Word matches')
+        else:
+            return HttpResponse('No matching word')
+    else:
+        return HttpResponseRedirect('/')

@@ -1,2 +1,11 @@
 <p>Here is the word list</p>
 {{ word_list_owner.list_name }}
+<p>Current list of words:</p>
+{% for word in word_list_owner.wordlist_set.all %}
+  <p>{word.base_word.name}</p>
+{% endfor %}
+<form method='POST' action="{% url 'add_words_to_word_list' %}">
+  {% csrf_token %}
+  Add word to list: <input type="text" name='lookup_word'>
+  <input type="submit" value='Create List'/>
+ </form>

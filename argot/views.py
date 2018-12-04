@@ -108,3 +108,14 @@ def gen_word_list_owner(request):
             return HttpResponse(f'Issues with list_name:{form.errors}')
     else:
         return HttpResponseRedirect('/')
+
+
+def add_words_to_word_list(request):
+    if request.method == 'POST' and request.user.is_authenticated:
+        form = WordListOwnerForm(request.POST)
+        if form.is_valid():
+            return HttpResponse('Word matches')
+        else:
+            return HttpResponse('No matching word')
+    else:
+        return HttpResponseRedirect('/')
