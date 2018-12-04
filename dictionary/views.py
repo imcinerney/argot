@@ -40,9 +40,9 @@ def add_words_to_word_list(request, word_owner_id):
         if form.is_valid():
             word = form.cleaned_data['search_term']
             base_word = models.VariantWord.objects.get(name=word).base_word
-            word_list_entry = models.WordList(word_list=word_list_owner,
-                                              word=base_word)
-            word_list_entry.save()
+            wl_entry, _ = models.WordList.objects \
+                                .get_or_create(word_list=word_list_owner,
+                                               word=base_word)
             return HttpResponseRedirect(reverse('dictionary:view_word_list',
                                                 args=(word_owner_id,)))
         else:

@@ -141,3 +141,4 @@ class WordList(models.Model):
     """Conatains the words contained for a given list"""
     word_list = models.ForeignKey(WordListOwner, on_delete=models.CASCADE)
     word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
+    unique_together = ('word_list', 'word')
