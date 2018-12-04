@@ -23,3 +23,10 @@ class ResultsView(generic.DetailView):
 def detail(request, base_word_id):
     word = get_object_or_404(models.BaseWord, pk=base_word_id)
     return render(request, 'dictionary/detail.html', {'word': word})
+
+
+def view_word_list(request, word_owner_id):
+    """Displays list of all words and lets user add new words"""
+    word_list_owner = get_object_or_404(models.WordListOwner, pk=word_owner_id)
+    return render(request, 'dictionary/view_word_list.html',
+                  {'word_list_owner' : word_list_owner})

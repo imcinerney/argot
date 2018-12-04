@@ -60,3 +60,15 @@ class RegistrationForm(forms.Form):
             raise ValidationError('Passwords are not equal')
         if username == pw1:
             raise ValidationError('Your password cannot be your username!')
+
+
+class WordListOwnerForm(forms.Form):
+    list_name = forms.CharField(max_length=50)
+
+    def clean_list_name(self):
+        list_name = self.cleaned_data['list_name']
+        if len(list_name) > 50:
+            raise ValidationError('List names are limited to 50 characters')
+        if list_name == '':
+            raise ValidationError('Must enter a name for the word list')
+        return list_name

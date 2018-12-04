@@ -431,6 +431,7 @@ def _clean_definition(definition, extra_text):
     def_text = def_text.replace('archaic :', 'archaic --')
     def_text = re.sub('\(see.*\)', '', def_text)
     def_text = re.sub('sense [0-9][a-zA-Z]?', '', def_text)
+    def_text = re.sub('sense [a-zA-Z]?', '', def_text)
     def_text = re.sub(' +', ' ', def_text)
     split_defs = def_text.split(':')
     p = re.compile('([a-zA-Z][a-zA-Z ,-\\\/()\']*)')
