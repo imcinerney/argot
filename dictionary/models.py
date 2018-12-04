@@ -126,7 +126,7 @@ class Antonym(models.Model):
 class WordListOwner(models.Model):
     """Lists the name for a list and the user who is using it"""
     list_name = models.CharField(max_length=50)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     @property
     def word_list_length(self):
