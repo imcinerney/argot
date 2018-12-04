@@ -4,7 +4,7 @@
   <th>Number of Words</th>
 {% for word_list in word_lists %}
   <tr>
-    <td>{{ word_list.list_name }}</td>
+    <td><a href="/dictionary/word_list/{{ word_list.id }}/">{{ word_list.list_name }}</a></td>
     <td align='center'>{{ word_list.word_list_length }}</td>
   </tr>
 {% endfor %}
