@@ -17,7 +17,7 @@ class BaseWord(models.Model):
         return [form_word.pos.name for form_word in form_words.all()]
 
     def __str__(self):
-        return f'{self.name}, searched_synonym: {self.searched_synonym}'
+        return f'{self.name}'
 
     def __repr__(self):
         return (f'BaseWord({self.id!r}, {self.name!r}, '
