@@ -4,7 +4,7 @@ from dictionary import merriam_webster_scraper as mws
 from .models import VariantWord, BaseWord
 
 
-class SearchWord(forms.Form):
+class SearchWordForm(forms.Form):
     search_term = forms.CharField(max_length=50)
 
     def clean_search_term(self):
@@ -16,6 +16,7 @@ class SearchWord(forms.Form):
         return search_term
 
     def clean(self):
+        cleaned_data = super().clean()
         search_term = cleaned_data.get('search_term')
         variant_word_list = VariantWord.objects.all().values_list('name',
                                                                   flat=True)

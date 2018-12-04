@@ -2,10 +2,10 @@
 {{ word_list_owner.list_name }}
 <p>Current list of words:</p>
 {% for word in word_list_owner.wordlist_set.all %}
-  <p>{word.base_word.name}</p>
+  <p>{{word.word}}</p>
 {% endfor %}
-<form method='POST' action="{% url 'add_words_to_word_list' %}">
+<form method='POST' action="{% url 'dictionary:add_words_to_word_list' word_list_owner.id %}">
   {% csrf_token %}
-  Add word to list: <input type="text" name='lookup_word'>
-  <input type="submit" value='Create List'/>
+  {{ form.search_term }}Add word to list: <input type="text" name='search_term'>
+  <input type="submit" value='Create List'>
  </form>

@@ -133,6 +133,10 @@ class WordListOwner(models.Model):
         list_of_words = self.wordlist_set.all()
         return len(list_of_words)
 
+    def __str__(self):
+        return f'{self.list_name}'
+
+
 class WordList(models.Model):
     """Conatains the words contained for a given list"""
     word_list = models.ForeignKey(WordListOwner, on_delete=models.CASCADE)

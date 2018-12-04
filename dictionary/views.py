@@ -4,6 +4,7 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views import generic
 from . import models
+from dictionary.forms import SearchWordForm
 
 
 class IndexView(generic.ListView):
@@ -32,11 +33,18 @@ def view_word_list(request, word_owner_id):
                   {'word_list_owner' : word_list_owner})
 
 
-def add_words_to_word_list(request):
+def add_words_to_word_list(request, word_owner_id):
+    word_list_owner = get_object_or_404(models.WordListOwner, pk=word_owner_id)
     if request.method == 'POST' and request.user.is_authenticated:
-        form = WordListOwnerForm(request.POST)
+        form = SearchWordForm(request.POST)
         if form.is_valid():
-            return HttpResponse('Word matches')
+            word = form.cleaned_data['search_term']
+            base_word = models.VariantWord.objects.get(name=word).base_word
+            word_list_entry = models.WordList(word_list=word_list_owner,
+                                              word=base_word)
+            word_list_entry.save()
+            return HttpResponseRedirect(reverse('dictionary:view_word_list',
+                                                args=(word_owner_id,)))
         else:
             return HttpResponse('No matching word')
     else:

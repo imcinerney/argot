@@ -5,6 +5,7 @@ from dictionary import merriam_webster_scraper as mws
 from argot.forms import LoginForm, RegistrationForm, WordListOwnerForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from dictionary.forms import SearchWordForm
 
 
 def home(request):
@@ -110,12 +111,14 @@ def gen_word_list_owner(request):
         return HttpResponseRedirect('/')
 
 
-def add_words_to_word_list(request):
-    if request.method == 'POST' and request.user.is_authenticated:
-        form = WordListOwnerForm(request.POST)
-        if form.is_valid():
-            return HttpResponse('Word matches')
-        else:
-            return HttpResponse('No matching word')
-    else:
-        return HttpResponseRedirect('/')
+# def add_words_to_word_list(request):
+#     if request.method == 'POST' and request.user.is_authenticated:
+#         form = SearchWordForm(request.POST)
+#         if form.is_valid():
+#             search_term = form.cleaned_data['search_term']
+#             base_word = VariantWord.objects.get(name=search_term).base_word
+#             return HttpResponse('Word matches')
+#         else:
+#             return HttpResponse('No matching word')
+#     else:
+#         return HttpResponseRedirect('/')
