@@ -12,4 +12,6 @@ urlpatterns = [
           views.add_words_to_word_list, name='add_words_to_word_list'),
     path('word_list/delete/<int:word_list_id>', views.delete_word_list,
          name='delete_word_list'),
+    path('word_list/<int:word_list_id>/change_name',
+        views.change_word_list_name, name='change_word_list_name'),
 ]

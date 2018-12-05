@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.views import generic
 from . import models
 from dictionary.forms import SearchWordForm
+from argot.forms import WordListForm
 
 
 class IndexView(generic.ListView):
@@ -72,3 +73,23 @@ def delete_word_list(request, word_list_id):
             return HttpResponseRedirect(reverse('word_lists'))
     else:
         return HttpResponseRedirect('/')
+
+
+def change_word_list_name(request, word_list_id):
+    """Handles changing the name of the word list"""
+    word_list = get_object_or_404(models.WordList, pk=word_list_id)
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            list_owner = word_list.user
+            form = WordListForm(request.POST)
+            if list_owner == request.user and form.is_valid():
+                word_list.list_name = form.cleaned_data['list_name']
+                word_list.save()
+                return HttpResponseRedirect(reverse('dictionary:view_word_list',
+                                                    args=(word_list_id,)))
+            else:
+                return HttpResponseRedirect('/')
+        else:
+            return render(request, 'dictionary/change_word_list_name.html',
+                          {'word_list': word_list})
+    return render(request, 'dictionary/change_word_list_name.html')

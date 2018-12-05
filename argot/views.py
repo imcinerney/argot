@@ -107,11 +107,11 @@ def gen_word_list(request):
         form = WordListForm(request.POST)
         if form.is_valid():
             list_name = form.cleaned_data['list_name']
-            word_owner = models.WordList(list_name=list_name, user=request.user)
-            word_owner.save()
-            word_owner_id = word_owner.id
-            return HttpResponseRedirect(f'dictionary/word_list/{word_owner_id}')
+            word_list = models.WordList(list_name=list_name, user=request.user)
+            word_list.save()
+            word_list_id = word_list.id
+            return HttpResponseRedirect(f'dictionary/word_list/{word_list_id}')
         else:
             return HttpResponse(f'Issues with list_name:{form.errors}')
     else:
-        return HttpResponseRedirect
+        return HttpResponseRedirect('/')
