@@ -62,7 +62,7 @@ class RegistrationForm(forms.Form):
             raise ValidationError('Your password cannot be your username!')
 
 
-class WordListOwnerForm(forms.Form):
+class WordListForm(forms.Form):
     list_name = forms.CharField(max_length=50)
 
     def clean_list_name(self):

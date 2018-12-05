@@ -26,39 +26,39 @@ def detail(request, base_word_id):
     return render(request, 'dictionary/detail.html', {'word': word})
 
 
-def view_word_list(request, word_owner_id):
+def view_word_list(request, word_list_id):
     """Displays list of all words and lets user add new words"""
-    word_list_owner = get_object_or_404(models.WordListOwner, pk=word_owner_id)
+    word_list = get_object_or_404(models.WordList, pk=word_list_id)
     return render(request, 'dictionary/view_word_list.html',
-                  {'word_list_owner' : word_list_owner})
+                  {'word_list' : word_list})
 
 
-def add_words_to_word_list(request, word_owner_id):
-    word_list_owner = get_object_or_404(models.WordListOwner, pk=word_owner_id)
+def add_words_to_word_list(request, word_list_id):
+    word_list = get_object_or_404(models.WordList, pk=word_list_id)
     if request.method == 'POST' and request.user.is_authenticated:
         form = SearchWordForm(request.POST)
         if form.is_valid():
             word = form.cleaned_data['search_term']
             base_word = models.VariantWord.objects.get(name=word).base_word
-            wl_entry, _ = models.WordList.objects \
-                                .get_or_create(word_list=word_list_owner,
+            wl_entry, _ = models.WordListEntry.objects \
+                                .get_or_create(word_list=word_list,
                                                word=base_word)
             return HttpResponseRedirect(reverse('dictionary:view_word_list',
-                                                args=(word_owner_id,)))
+                                                args=(word_list_id,)))
         else:
             return HttpResponse('No matching word')
     else:
         return HttpResponseRedirect('/')
 
 
-def delete_word_list(request, word_owner_id):
-    word_list_owner = get_object_or_404(models.WordListOwner, pk=word_owner_id)
+def delete_word_list(request, word_list_id):
+    word_list = get_object_or_404(models.WordList, pk=word_list_id)
     if request.user.is_authenticated:
-        list_owner = word_list_owner.user
+        list_owner = word_list.user
         if list_owner != request.user:
             return HttpResponseRedirect('/')
         else:
-            word_list_owner.delete()
+            word_list.delete()
             return HttpResponseRedirect(reverse('word_lists'))
     else:
         return HttpResponseRedirect('/')

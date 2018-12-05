@@ -29,6 +29,6 @@ urlpatterns = [
     path('word_lists', home_views.word_lists, name='word_lists'),
     path('create_word_list', home_views.create_word_list,
          name='create_word_list'),
-    path('gen_word_list_owner', home_views.gen_word_list_owner,
-         name='gen_word_list_owner'),
+    path('gen_word_list', home_views.gen_word_list,
+         name='gen_word_list'),
 ]
