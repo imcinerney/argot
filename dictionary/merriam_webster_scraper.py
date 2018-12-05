@@ -24,6 +24,7 @@ def scrape_word(word, search_synonym=False):
     try:
         r = requests.get(url, timeout=10)
     except requests.exceptions.Timeout:
+        time.sleep(5)
         return scrape_word(word, search_synonym)
     if r.status_code == 404:
         return False
