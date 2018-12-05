@@ -1,0 +1,6 @@
+<p>Enter a name for your list to be called</p>
+<form method='POST' action="{% url 'gen_word_list_owner' %}">
+  {% csrf_token %}
+  List Name: {{ form.list_name }}<input type="text" name='list_name'>
+  <input type="submit" value='Create List'/>
+ </form>

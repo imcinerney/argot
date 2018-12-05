@@ -49,7 +49,7 @@ def _manage_dictionary_entries(soup, word, search_synonym):
     left_content = def_wrapper.find('div', {'id' : 'left-content'})
     #means that there is probably a root word elsewhere
     first_entry = left_content.find('div', {'id' : 'dictionary-entry-1'})
-    new_word = first_entry.find('a', {'class' : 'cxt'})
+    new_word = first_entry.find('a', {'class' : 'cxt', 'rel' : 'prev'})
     if new_word is not None:
         time.sleep(1)
         new_word = new_word.getText().strip()
@@ -431,6 +431,7 @@ def _clean_definition(definition, extra_text):
     def_text = def_text.replace('archaic :', 'archaic --')
     def_text = re.sub('\(see.*\)', '', def_text)
     def_text = re.sub('sense [0-9][a-zA-Z]?', '', def_text)
+    def_text = re.sub('sense [a-zA-Z]?', '', def_text)
     def_text = re.sub(' +', ' ', def_text)
     split_defs = def_text.split(':')
     p = re.compile('([a-zA-Z][a-zA-Z ,-\\\/()\']*)')

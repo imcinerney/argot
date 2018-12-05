@@ -21,9 +21,9 @@
    Word List to Checkout:
    <p>&nbsp;</p>
    {% if user.is_authenticated %}
-   Click here to browse your word lists
+   <a href="/word_lists"><button>Word Lists</button></a>
    <p></p>
-   <a href="#"><button>Logout</button></a>
+   <a href="/user_logout"><button>Logout</button></a>
    {% else %}
      <form method='POST' action="{% url 'user_login' %}">
        {% csrf_token %}

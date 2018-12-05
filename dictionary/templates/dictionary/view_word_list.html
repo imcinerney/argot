@@ -1,0 +1,14 @@
+<p>Here is the word list</p>
+{{ word_list_owner.list_name }}
+<p>Current list of words:</p>
+{% for word in word_list_owner.wordlist_set.all %}
+  <li><a href="/dictionary/{{ word.word.id }}/">{{ word.word }}</a></li>
+{% endfor %}
+<p></p>
+<form method='POST' action="{% url 'dictionary:add_words_to_word_list' word_list_owner.id %}">
+  {% csrf_token %}
+  {{ form.search_term }}Add word to list: <input type="text" name='search_term'>
+  <input type="submit" value='Add Word'>
+ </form>
+
+<a href="/word_lists"><button>Back to WordLists</button></a>

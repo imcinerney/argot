@@ -1,0 +1,13 @@
+<h1>Here are the list of word lists that you have</h1>
+<table>
+  <th align='center'>List Name</th>
+  <th>Number of Words</th>
+{% for word_list in word_lists %}
+  <tr>
+    <td><a href="/dictionary/word_list/{{ word_list.id }}/">{{ word_list.list_name }}</a></td>
+    <td align='center'>{{ word_list.word_list_length }}</td>
+    <td align='center'><a href='/dictionary/word_list/delete/{{word_list.id}}'>Delete List</a></td>
+  </tr>
+{% endfor %}
+</table>
+<a href='/create_word_list'><button>Create New Word List</button></a>

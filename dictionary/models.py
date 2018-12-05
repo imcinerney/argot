@@ -17,7 +17,7 @@ class BaseWord(models.Model):
         return [form_word.pos.name for form_word in form_words.all()]
 
     def __str__(self):
-        return f'{self.name}, searched_synonym: {self.searched_synonym}'
+        return f'{self.name}'
 
     def __repr__(self):
         return (f'BaseWord({self.id!r}, {self.name!r}, '
@@ -126,10 +126,19 @@ class Antonym(models.Model):
 class WordListOwner(models.Model):
     """Lists the name for a list and the user who is using it"""
     list_name = models.CharField(max_length=50)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    @property
+    def word_list_length(self):
+        list_of_words = self.wordlist_set.all()
+        return len(list_of_words)
+
+    def __str__(self):
+        return f'{self.list_name}'
 
 
 class WordList(models.Model):
     """Conatains the words contained for a given list"""
     word_list = models.ForeignKey(WordListOwner, on_delete=models.CASCADE)
     word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
+    unique_together = ('word_list', 'word')
