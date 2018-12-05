@@ -29,8 +29,18 @@ def detail(request, base_word_id):
 def view_word_list(request, word_list_id):
     """Displays list of all words and lets user add new words"""
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
-    return render(request, 'dictionary/view_word_list.html',
-                  {'word_list' : word_list})
+    if request.user.is_authenticated:
+        list_owner = word_list.user
+        if list_owner != request.user:
+            return HttpResponseRedirect('/')
+        else:
+            profile = request.user.profile
+            profile.active_word_list = word_list
+            profile.save()
+            return render(request, 'dictionary/view_word_list.html',
+                          {'word_list' : word_list})
+    else:
+        return HttpResponseRedirect('/')
 
 
 def add_words_to_word_list(request, word_list_id):
