@@ -56,7 +56,7 @@ def delete_word_list(request, word_owner_id):
     if request.user.is_authenticated:
         list_owner = word_list_owner.user
         if list_owner != request.user:
-            raise HttpResponse('/')
+            return HttpResponseRedirect('/')
         else:
             word_list_owner.delete()
             return HttpResponseRedirect(reverse('word_lists'))
