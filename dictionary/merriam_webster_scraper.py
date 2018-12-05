@@ -48,7 +48,7 @@ def _manage_dictionary_entries(soup, word, search_synonym):
     """
     def_wrapper = soup.find('div', {'id': 'definition-wrapper'})
     left_content = def_wrapper.find('div', {'id' : 'left-content'})
-    #means that there is probably a root word elsewhere
+    #If there's an entry, probably a more commonly spelled name to search
     first_entry = left_content.find('div', {'id' : 'dictionary-entry-1'})
     new_word = first_entry.find('a', {'class' : 'cxt', 'rel' : 'prev'})
     if new_word is not None:
