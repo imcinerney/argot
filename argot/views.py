@@ -16,16 +16,23 @@ def home(request):
     3. Log in
     """
     query = request.GET.get('search_string')
+    word_list = None
+    if request.user.is_authenticated:
+        word_list = request.user.profile.active_word_list
     if query:
         try:
             variant_word = models.VariantWord.objects.get(name=query)
             base_word = variant_word.base_word
+            if word_list is not None:
+                word_list.add_word(base_word)
             return render(request, 'dictionary/detail.html',
                           {'word': base_word})
         except models.VariantWord.DoesNotExist:
             if mws.scrape_word(query):
                 variant_word = models.VariantWord.objects.get(name=query)
                 base_word = variant_word.base_word
+                if word_list is not None:
+                    word_list.add_word(base_word)
                 return render(request, 'dictionary/detail.html',
                               {'word': base_word})
             else:

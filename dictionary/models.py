@@ -138,6 +138,10 @@ class WordList(models.Model):
     def __str__(self):
         return f'{self.list_name}'
 
+    def add_word(self, word):
+        entry = WordListEntry(word_list=self, word=word)
+        entry.save()
+
 
 class WordListEntry(models.Model):
     """Conatains the words contained for a given list"""
