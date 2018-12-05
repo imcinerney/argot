@@ -1,0 +1,6 @@
+<p>Change the name of the word list from {{ word_list.list_name }} to</p>
+<form method='POST' action='/dictionary/word_list/{{word_list.id}}/change_name'>
+  {% csrf_token %}
+  New List Name: {{ form.list_name }}<input type="text" name='list_name'>
+  <input type="submit" value='Create List'/>
+</form>

@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from dictionary import models
 from dictionary import merriam_webster_scraper as mws
-from argot.forms import LoginForm, RegistrationForm, WordListOwnerForm
+from argot.forms import LoginForm, RegistrationForm, WordListForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from dictionary.forms import SearchWordForm
@@ -16,16 +16,23 @@ def home(request):
     3. Log in
     """
     query = request.GET.get('search_string')
+    word_list = None
+    if request.user.is_authenticated:
+        word_list = request.user.profile.active_word_list
     if query:
         try:
             variant_word = models.VariantWord.objects.get(name=query)
             base_word = variant_word.base_word
+            if word_list is not None:
+                word_list.add_word(base_word)
             return render(request, 'dictionary/detail.html',
                           {'word': base_word})
         except models.VariantWord.DoesNotExist:
             if mws.scrape_word(query):
                 variant_word = models.VariantWord.objects.get(name=query)
                 base_word = variant_word.base_word
+                if word_list is not None:
+                    word_list.add_word(base_word)
                 return render(request, 'dictionary/detail.html',
                               {'word': base_word})
             else:
@@ -84,7 +91,7 @@ def user_logout(request):
 def word_lists(request):
     if request.user.is_authenticated:
         user = request.user
-        word_lists = user.wordlistowner_set.all()
+        word_lists = user.wordlist_set.all()
         return render(request, 'argot/word_lists.html',
                       {'word_lists': word_lists})
     else:
@@ -95,17 +102,16 @@ def create_word_list(request):
     return render(request, 'argot/create_word_list.html')
 
 
-def gen_word_list_owner(request):
+def gen_word_list(request):
     if request.method == 'POST' and request.user.is_authenticated:
-        form = WordListOwnerForm(request.POST)
+        form = WordListForm(request.POST)
         if form.is_valid():
             list_name = form.cleaned_data['list_name']
-            word_owner = models.WordListOwner(list_name=list_name,
-                                              user=request.user)
-            word_owner.save()
-            word_owner_id = word_owner.id
-            return HttpResponseRedirect(f'dictionary/word_list/{word_owner_id}')
+            word_list = models.WordList(list_name=list_name, user=request.user)
+            word_list.save()
+            word_list_id = word_list.id
+            return HttpResponseRedirect(f'dictionary/word_list/{word_list_id}')
         else:
             return HttpResponse(f'Issues with list_name:{form.errors}')
     else:
-        return HttpResponseRedirect
+        return HttpResponseRedirect('/')

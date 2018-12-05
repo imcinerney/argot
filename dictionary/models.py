@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class BaseWord(models.Model):
@@ -123,22 +125,44 @@ class Antonym(models.Model):
         return f'Antonym({self.id!r}, {self.form_word!r}, {self.antonym!r})'
 
 
-class WordListOwner(models.Model):
+class WordList(models.Model):
     """Lists the name for a list and the user who is using it"""
     list_name = models.CharField(max_length=50)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     @property
     def word_list_length(self):
-        list_of_words = self.wordlist_set.all()
+        list_of_words = self.wordlistentry_set.all()
         return len(list_of_words)
 
     def __str__(self):
         return f'{self.list_name}'
 
+    def add_word(self, word):
+        entry = WordListEntry(word_list=self, word=word)
+        entry.save()
 
-class WordList(models.Model):
+
+class WordListEntry(models.Model):
     """Conatains the words contained for a given list"""
-    word_list = models.ForeignKey(WordListOwner, on_delete=models.CASCADE)
+    word_list = models.ForeignKey(WordList, on_delete=models.CASCADE)
     word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     unique_together = ('word_list', 'word')
+
+
+class Profile(models.Model):
+    """Extension of Django-default User"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    active_word_list = models.OneToOneField(WordList, null=True,
+                                            on_delete=models.SET_NULL)
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
