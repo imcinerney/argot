@@ -14,8 +14,14 @@
    vocabulary of book.
    <p>&nbsp;</p>
    {% if user.is_authenticated %}
-      Current word list: <a href='/dictionary/word_list/{{user.profile.active_word_list.id}}'>
-        {{user.profile.active_word_list}}</a> <a href='/word_lists'><button>Click to Change</button></a>
+      Current word list:
+        {% if user.profile.active_word_list == None %}
+          No active list
+        {% else %}
+        <a href='/dictionary/word_list/{{user.profile.active_word_list.id}}'>
+          {{user.profile.active_word_list}}  </a> 
+        {% endif %}
+      <a href='/word_lists'><button>Click to Change</button></a>
       <p></p>
       Number of words: {{user.profile.active_word_list.word_list_length}}
       <p>&nbsp;</p>

@@ -52,7 +52,7 @@ def create_user(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            password = form.cleaned_data['password1']
+            password = form.cleaned_data['password']
             username = form.cleaned_data['username']
             user = User.objects.create_user(username=username,
                                             password=password)
