@@ -19,7 +19,7 @@
           No active list
         {% else %}
         <a href='/dictionary/word_list/{{user.profile.active_word_list.id}}'>
-          {{user.profile.active_word_list}}  </a> 
+          {{user.profile.active_word_list}}  </a>
         {% endif %}
       <a href='/word_lists'><button>Click to Change</button></a>
       <p></p>
@@ -27,7 +27,7 @@
       <p>&nbsp;</p>
    {% endif %}
    <form action='' method='GET'>
-   Look Up A Word: <input type="text" name="search_string" placeholder="Enter a word..."/>
+   {{form.search_term}} Look Up A Word: <input type="text" name="search_term" placeholder="Enter a word..."/>
    <input type="submit" value='search'/>
    </form>
    {% if user.is_authenticated %}

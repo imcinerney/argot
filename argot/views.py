@@ -15,29 +15,23 @@ def home(request):
     look up words. Eventually will offer a number of practice word lists to play
     with. Allows user to login or to register.
     """
-    query = request.GET.get('search_string')
+    query = request.GET.get('search_term')
     word_list = None
     if request.user.is_authenticated:
         word_list = request.user.profile.active_word_list
     if query:
-        try:
-            variant_word = models.VariantWord.objects.get(name=query)
-            base_word = variant_word.base_word
+        form = SearchWordForm(request.GET)
+        if form.is_valid():
+            search_term = form.cleaned_data['search_term']
+            base_word = models.VariantWord.objects.get(name=search_term) \
+                              .base_word
             if word_list is not None:
                 word_list.add_word(base_word)
             return render(request, 'dictionary/detail.html',
                           {'word': base_word})
-        except models.VariantWord.DoesNotExist:
-            if mws.scrape_word(query):
-                variant_word = models.VariantWord.objects.get(name=query)
-                base_word = variant_word.base_word
-                if word_list is not None:
-                    word_list.add_word(base_word)
-                return render(request, 'dictionary/detail.html',
-                              {'word': base_word})
-            else:
-                return render(request, 'argot/no_word_found.html',
-                              {'word' : query})
+        else:
+            return render(request, 'argot/no_word_found.html',
+                          {'word' : query})
     return render(request, 'argot/home.html')
 
 
