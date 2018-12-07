@@ -1,13 +1,15 @@
 from django.test import TestCase
-
+from django.contrib.auth.models import User
 from .models import (BaseWord, FormWord, PartOfSpeech, WordDefinition,
-    VariantWord)
+    VariantWord, Profile, WordList)
 from dictionary import merriam_webster_scraper as mws
+from django.db.models import F
 from bs4 import BeautifulSoup
 import os
 
 
 class BaseWordModelTest(TestCase):
+    """Check basic functions"""
     def setUp(self):
         back = BaseWord.objects.create(name='back')
         noun = PartOfSpeech.objects.create(name='noun')
@@ -18,12 +20,19 @@ class BaseWordModelTest(TestCase):
         form2 = FormWord.objects.create(base_word=back, pos=verb)
         form3 = FormWord.objects.create(base_word=back, pos=abverb)
         form4 = FormWord.objects.create(base_word=back, pos=adjective)
+        james = User.objects.create(username='james')
 
     def test_pos_list(self):
         """Make sure the return_pos_list() function works correctly"""
         back = BaseWord.objects.get(name='back')
         self.assertEqual(back.return_pos_list(), ['noun', 'verb', 'abverb',
                                                   'adjective'])
+
+    def test_null_word_list(self):
+        """Tests that there shouldn't be active wordlist unless assigned"""
+        james = Profile.objects.annotate(username=F('user__username')) \
+                       .filter(username='james')[0]
+        self.assertEqual(james.active_word_list, None)
 
 
 class ScraperHelperFunctionTest(TestCase):
@@ -243,18 +252,18 @@ class OstentatiousAffectedDefinitionEntryTest(TestCase):
 
 
     def test_db_created_successfully(self):
+        db_variant_words = VariantWord.objects.values_list('name', flat=True)
+        affect_in = 'affect' in db_variant_words
+        self.assertEqual(affect_in, False)
         db_base_words = BaseWord.objects.all()
-        base_word_list = ['ostentatious', 'affect']
+        base_word_list = ['ostentatious', 'affected']
         self.assertEqual(list(db_base_words.order_by('id')
                                            .values_list('name', flat=True)),
                          base_word_list)
         db_pos_list = db_base_words[0].return_pos_list()
         pos_list = ['adjective']
         db_pos_list = db_base_words[1].return_pos_list()
-        pos_list = [
-                    'noun',
-                    'verb',
-                   ]
+        pos_list = ['adjective']
         self.assertEqual(db_pos_list, pos_list)
         db_definitions = list(WordDefinition.objects.all()
                                             .values_list('definition',
