@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 class PasswordForm(forms.Form):
     """Form to validate the password of either a login of a registration"""
-    min_pass_length = 6
+    min_pass_length = 8
     max_pass_length = 20
     password = forms.CharField(max_length=max_pass_length)
 
@@ -30,7 +30,7 @@ class LoginForm(PasswordForm):
     """Form to handle all log ins. Ensures that the username already exists in
     database and checks to see if the password meets the criteria for a pw
     """
-    username = forms.CharField(max_length=20)
+    username = forms.CharField(max_length=30)
 
     def clean_username(self):
         username = self.cleaned_data['username']
@@ -44,7 +44,6 @@ class RegistrationForm(PasswordForm):
     """Form to handle registration. Checks that password and username length
     is within the standard and that the password fulfills the requirements.
     """
-    min_pass_length = 6
     max_pass_length = 20
     min_username_length = 4
     max_username_length = 30
@@ -59,8 +58,6 @@ class RegistrationForm(PasswordForm):
         if len(username) > self.max_username_length:
             raise ValidationError(f'Username cannot be greater than '
                                   f'{self.max_username_length} characters')
-        if re.search('[0-9]', username) is not None:
-            raise ValidationError('Cannot have numbers in username')
         if User.objects.filter(username=username).exists():
             raise ValidationError(f'Username {username} already exists')
         return username
