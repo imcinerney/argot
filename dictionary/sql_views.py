@@ -70,6 +70,9 @@ def _export_views(view_name):
         s = eval(view_name)()
     except NameError:
         raise NameError(f'No sql view found with the name {view_name}')
-    export_file = os.path.join('dictionary', 'sql_queries', view_name + '.sql')
+    export_path = os.path.join('dictionary', 'sql_queries')
+    if not os.path.exists(export_path):
+        os.makedirs(export_path)
+    export_file = os.path.join(export_path, view_name + '.sql')
     with open(export_file, 'w+') as f:
         f.write(str(s))

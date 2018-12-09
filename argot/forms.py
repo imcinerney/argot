@@ -4,9 +4,33 @@ import re
 from django.contrib.auth.models import User
 
 
-class LoginForm(forms.Form):
-    username = forms.CharField(max_length=20)
-    password = forms.CharField(max_length=20)
+class PasswordForm(forms.Form):
+    """Form to validate the password of either a login of a registration"""
+    min_pass_length = 8
+    max_pass_length = 20
+    password = forms.CharField(max_length=max_pass_length)
+
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        if len(password) < self.min_pass_length:
+            raise ValidationError(f'Password cannot be fewer than '
+                                  f'{self.min_pass_length} characters')
+        if len(password) > self.max_pass_length:
+            raise ValidationError(f'Password cannot be greater than '
+                                  f'{self.max_pass_length} characters')
+        if re.search('[0-9]', password) is None:
+            raise ValidationError('Passwords must contain at least one number')
+        if re.search('[!@#$%^&*]', password) is None:
+            raise ValidationError('Passwords must contain at least on of the '
+                                  'following characters: !@#$%^&*')
+        return password
+
+
+class LoginForm(PasswordForm):
+    """Form to handle all log ins. Ensures that the username already exists in
+    database and checks to see if the password meets the criteria for a pw
+    """
+    username = forms.CharField(max_length=30)
 
     def clean_username(self):
         username = self.cleaned_data['username']
@@ -15,46 +39,33 @@ class LoginForm(forms.Form):
                                   f'name: {username}')
         return username
 
-    def clean_password(self):
-        password = self.cleaned_data['password']
-        if re.search('[0-9]', password) is not None:
-            raise ValidationError('Cannot have numbers in password')
-        return password
 
-
-class RegistrationForm(forms.Form):
-    username = forms.CharField(max_length=20)
-    password1 = forms.CharField(max_length=20)
-    password2 = forms.CharField(max_length=20)
+class RegistrationForm(PasswordForm):
+    """Form to handle registration. Checks that password and username length
+    is within the standard and that the password fulfills the requirements.
+    """
+    max_pass_length = 20
+    min_username_length = 4
+    max_username_length = 30
+    username = forms.CharField(max_length=max_username_length * 2)
+    password2 = forms.CharField(max_length=max_pass_length * 2)
 
     def clean_username(self):
         username = self.cleaned_data['username']
-        if len(username) < 4:
-            raise ValidationError('Username cannot be fewer than 4 characters')
-        if len(username) > 20:
-            raise ValidationError('Username cannot be greater than 20 '
-                                  'characters')
-        if re.search('[0-9]', username) is not None:
-            raise ValidationError('Cannot have numbers in username')
+        if len(username) < self.min_username_length:
+            raise ValidationError(f'Username cannot be fewer than '
+                                  f'{self.min_username_length} characters')
+        if len(username) > self.max_username_length:
+            raise ValidationError(f'Username cannot be greater than '
+                                  f'{self.max_username_length} characters')
         if User.objects.filter(username=username).exists():
             raise ValidationError(f'Username {username} already exists')
         return username
 
-    def clean_password1(self):
-        password1 = self.cleaned_data['password1']
-        if len(password1) < 4:
-            raise ValidationError('Password cannot be fewer than 4 characters')
-        if len(password1) > 20:
-            raise ValidationError('Password cannot be greater than 20 '
-                                  'characters')
-        if re.search('[0-9]', password1) is not None:
-            raise ValidationError('Cannot have numbers in password')
-        return password1
-
     def clean(self):
         cleaned_data = super().clean()
         username = cleaned_data.get('username')
-        pw1 = cleaned_data.get('password1')
+        pw1 = cleaned_data.get('password')
         pw2 = cleaned_data.get('password2')
         if pw1 != pw2:
             raise ValidationError('Passwords are not equal')
@@ -63,12 +74,16 @@ class RegistrationForm(forms.Form):
 
 
 class WordListForm(forms.Form):
-    list_name = forms.CharField(max_length=50)
+    """Form to validate word list names. Checks that the word list name does not
+    exceed the maximum word list name"""
+    max_list_name_length = 50
+    list_name = forms.CharField(max_length=max_list_name_length * 2)
 
     def clean_list_name(self):
         list_name = self.cleaned_data['list_name']
-        if len(list_name) > 50:
-            raise ValidationError('List names are limited to 50 characters')
+        if len(list_name) > self.max_list_name_length:
+            raise ValidationError(f'List names are limited to '
+                                  f'{self.max_list_name_length} characters')
         if list_name == '':
             raise ValidationError('Must enter a name for the word list')
         return list_name

@@ -293,8 +293,13 @@ def _handle_main_dictionary_entry(left_content, variant_word_set,
         for entry in remaining_entries:
             i += 1
             #We only use the return values for the first entry
-            _ = _add_base_and_form(entry, i, left_content,
-                                   variant_word_set, search_synonym)
+            if base_word_ is not None:
+                _ = _add_base_and_form(entry, i, left_content,
+                                       variant_word_set, search_synonym)
+            else:
+                (_, base_word_, _) = _add_base_and_form(entry, i, left_content,
+                                                        variant_word_set,
+                                                        search_synonym)
         return (word_name, base_word_)
     else:
         return (word_name, base_word_)
@@ -339,7 +344,7 @@ def _add_base_and_form(entry, i, left_content, variant_word_set,
                         searched_synonym=search_synonym)
     pos_ = _find_pos(entry)
     if pos_ is None:
-        return (True, None, word_name)
+        return (False, None, word_name)
     form_word_, _ = (models.FormWord.objects
                                     .get_or_create(pos=pos_,
                                                    base_word=base_word_,))

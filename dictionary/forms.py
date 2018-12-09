@@ -5,6 +5,7 @@ from .models import VariantWord, BaseWord
 
 
 class SearchWordForm(forms.Form):
+    """Form to search for a given word"""
     search_term = forms.CharField(max_length=50)
 
     def clean_search_term(self):

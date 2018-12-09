@@ -8,7 +8,7 @@ class BaseWord(models.Model):
     """Contains base form or plain form of a word.
 
     Variants such as plurals or different tenses are stored in the VariantWord
-    class. Links to different definitions.
+    class. Unique record for each dictionary entry
     """
     name = models.CharField(max_length=50, unique=True)
     searched_synonym = models.BooleanField(default=False)
@@ -38,7 +38,7 @@ class PartOfSpeech(models.Model):
 
 
 class FormWord(models.Model):
-    """Unique stores the list of parts of speech for each base word"""
+    """Stores the list of parts of speech for each base word"""
     base_word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     pos = models.ForeignKey(PartOfSpeech, on_delete=models.CASCADE)
     unique_together = ('base_word', 'pos')
@@ -53,7 +53,9 @@ class FormWord(models.Model):
 class VariantWord(models.Model):
     """Contains all different forms of a word. Plurals, past tense, etc.
 
-    Many to one relationship with BaseWord.
+    Used for looking up if a word is in our databse. The VariantWord table
+    will contain different spellings so if a user enters a different spelling
+    we don't incorrectly say we don't have it.
     """
     base_word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=True)
@@ -79,7 +81,7 @@ class WordDefinition(models.Model):
 
 
 class ExampleSentence(models.Model):
-    """An example of a word used in a sentence for a definition of a word."""
+    """An example of using a word in a sentence for a particular definition."""
     definition = models.ForeignKey(WordDefinition, on_delete=models.CASCADE)
     sentence = models.CharField(max_length=300)
 
@@ -92,12 +94,7 @@ class ExampleSentence(models.Model):
 
 
 class Synonym(models.Model):
-    """Word that has a similar meaning to a FormWord.
-
-    Need to validate that base_word is not equal to the synonym. Unsure if I
-    can do this within the model method or if this validation should just be
-    handled when creating the database.
-    """
+    """Word that has a similar meaning to a FormWord."""
     form_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
     synonym = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     unique_together = ('form_word', 'synonym')
@@ -110,10 +107,7 @@ class Synonym(models.Model):
 
 
 class Antonym(models.Model):
-    """Word that has the oppositing meaning to a base word.
-
-    Same issue of validating as commented in the synonym class
-    """
+    """Word that has the oppositing meaning to a base word."""
     form_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
     antonym = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     unique_together = ('form_word', 'antonym')
@@ -126,7 +120,7 @@ class Antonym(models.Model):
 
 
 class WordList(models.Model):
-    """Lists the name for a list and the user who is using it"""
+    """Contains the name of the list and the user who created the list"""
     list_name = models.CharField(max_length=50)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -139,30 +133,40 @@ class WordList(models.Model):
         return f'{self.list_name}'
 
     def add_word(self, word):
+        """Creates an WordListEntry"""
         entry = WordListEntry(word_list=self, word=word)
         entry.save()
 
 
 class WordListEntry(models.Model):
-    """Conatains the words contained for a given list"""
+    """Stores a record of a word in a word list"""
     word_list = models.ForeignKey(WordList, on_delete=models.CASCADE)
     word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     unique_together = ('word_list', 'word')
 
+    def __str__(self):
+        return f'Word List: {self.word_list.list_name}, Word Name: {self.word}'
+
 
 class Profile(models.Model):
-    """Extension of Django-default User"""
+    """Extension of Django-default User, allows us to track active wordlists"""
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     active_word_list = models.OneToOneField(WordList, null=True,
                                             on_delete=models.SET_NULL)
 
+    def __str__(self):
+        return (f'Username: {self.user.username}, '
+                f'active_word_list: {self.active_word_list}')
+
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
+    """We want to create a Profile everytime we create a User"""
     if created:
         Profile.objects.create(user=instance)
 
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
+    """We want to save a Pofile everytime we save a User"""
     instance.profile.save()

@@ -8,27 +8,20 @@ from dictionary.forms import SearchWordForm
 from argot.forms import WordListForm
 
 
-class IndexView(generic.ListView):
-    template_name = 'dictionary/index.html'
-    context_object_name = 'latest_words_added'
-
-    def get_queryset(self):
-        """Return last five added dictionary words"""
-        return models.BaseWord.objects.order_by('-pk')[:5]
-
-
-class ResultsView(generic.DetailView):
-    model = models.BaseWord
-    template_name = 'dictionary/results.html'
-
-
 def detail(request, base_word_id):
+    """Displays the definition page for a baseword"""
     word = get_object_or_404(models.BaseWord, pk=base_word_id)
     return render(request, 'dictionary/detail.html', {'word': word})
 
 
 def view_word_list(request, word_list_id):
-    """Displays list of all words and lets user add new words"""
+    """Displays list of all words and lets user add new words.
+
+    Currently if a user is not logged in and the word list isn't hers, she will
+    not be able to see the list. Will eventually change to have the option to
+    hide / show word lists to non-owners. Maybe also have the option to allow
+    other users to add as well?
+    """
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
     if request.user.is_authenticated:
         list_owner = word_list.user
@@ -45,6 +38,7 @@ def view_word_list(request, word_list_id):
 
 
 def add_words_to_word_list(request, word_list_id):
+    """Handles adding words to the word list"""
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
     if request.method == 'POST' and request.user.is_authenticated:
         form = SearchWordForm(request.POST)
@@ -63,6 +57,7 @@ def add_words_to_word_list(request, word_list_id):
 
 
 def delete_word_list(request, word_list_id):
+    """Handles deleting a word list. Must be the owner in order to delete"""
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
     if request.user.is_authenticated:
         list_owner = word_list.user
@@ -76,7 +71,7 @@ def delete_word_list(request, word_list_id):
 
 
 def change_word_list_name(request, word_list_id):
-    """Handles changing the name of the word list"""
+    """Handles changing the name of the word list. Only owner can change name"""
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
     if request.user.is_authenticated:
         if request.method == 'POST':

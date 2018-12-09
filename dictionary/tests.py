@@ -1,13 +1,15 @@
 from django.test import TestCase
-
+from django.contrib.auth.models import User
 from .models import (BaseWord, FormWord, PartOfSpeech, WordDefinition,
-    VariantWord)
+    VariantWord, Profile, WordList)
 from dictionary import merriam_webster_scraper as mws
+from django.db.models import F
 from bs4 import BeautifulSoup
 import os
 
 
 class BaseWordModelTest(TestCase):
+    """Check basic functions"""
     def setUp(self):
         back = BaseWord.objects.create(name='back')
         noun = PartOfSpeech.objects.create(name='noun')
@@ -18,12 +20,19 @@ class BaseWordModelTest(TestCase):
         form2 = FormWord.objects.create(base_word=back, pos=verb)
         form3 = FormWord.objects.create(base_word=back, pos=abverb)
         form4 = FormWord.objects.create(base_word=back, pos=adjective)
+        james = User.objects.create(username='james')
 
     def test_pos_list(self):
         """Make sure the return_pos_list() function works correctly"""
         back = BaseWord.objects.get(name='back')
         self.assertEqual(back.return_pos_list(), ['noun', 'verb', 'abverb',
                                                   'adjective'])
+
+    def test_null_word_list(self):
+        """Tests that there shouldn't be active wordlist unless assigned"""
+        james = Profile.objects.annotate(username=F('user__username')) \
+                       .filter(username='james')[0]
+        self.assertEqual(james.active_word_list, None)
 
 
 class ScraperHelperFunctionTest(TestCase):
@@ -221,13 +230,6 @@ class CapriciousPrecipitateDefinitionEntryTest(TestCase):
 class OstentatiousAffectedDefinitionEntryTest(TestCase):
     """Class to test that the scraper successfully extracts info from the
     entry of the word 'Ostentatious' and then 'affected'
-
-    Ostentatious lists 'affected' as a synonym and 'affected' has its own page.
-    However, we probably want to use 'affect' as the base word for affected.
-    This verifies that this is the case.
-
-    Note: because of the way the scraper test is written, you will need internet
-    connection to retrieve the 'affect' webpage.
     """
     def setUp(self):
         ostentatious_html = os.path.join('dictionary', 'html_test_pages',
@@ -243,18 +245,18 @@ class OstentatiousAffectedDefinitionEntryTest(TestCase):
 
 
     def test_db_created_successfully(self):
+        db_variant_words = VariantWord.objects.values_list('name', flat=True)
+        affect_in = 'affect' in db_variant_words
+        self.assertEqual(affect_in, False)
         db_base_words = BaseWord.objects.all()
-        base_word_list = ['ostentatious', 'affect']
+        base_word_list = ['ostentatious', 'affected']
         self.assertEqual(list(db_base_words.order_by('id')
                                            .values_list('name', flat=True)),
                          base_word_list)
         db_pos_list = db_base_words[0].return_pos_list()
         pos_list = ['adjective']
         db_pos_list = db_base_words[1].return_pos_list()
-        pos_list = [
-                    'noun',
-                    'verb',
-                   ]
+        pos_list = ['adjective']
         self.assertEqual(db_pos_list, pos_list)
         db_definitions = list(WordDefinition.objects.all()
                                             .values_list('definition',
@@ -265,45 +267,27 @@ class OstentatiousAffectedDefinitionEntryTest(TestCase):
                             'obviousness',
                         'overly elaborate or conspicuous',
                         'characterized by, fond of, or evincing ostentation',
-                        'the conscious subjective aspect of an emotion '
-                            'considered apart from bodily changes',
-                        'a set of observable manifestations of a subjectively '
-                            'experienced emotion',
-                        'feeling, affection',
-                        'to make a display of liking or using',
-                        'cultivate',
-                        'to put on a pretense of',
-                        'feign',
-                        'to have affection for',
-                        'to be given to',
-                        'fancy',
-                        'to tend toward',
-                        'frequent',
-                        'to aim at',
-                        'incline',
-                        'to produce an effect upon',
-                        'such as',
-                        'to produce a material influence upon or alteration in',
-                        "to act upon (a person, a person's mind or feelings, "
-                            "etc.) so as to effect a response",
-                        'influence',
+                        'having or showing an attitude or mode of behavior that'
+                            ' is not natural or genuinely felt',
+                        'given to or marked by affectation',
+                        'assumed artificially or falsely',
+                        'pretended',
+                        'inclined, disposed',
                        ]
         self.assertEqual(db_definitions, definitions)
 
 
 class EndorseDefinitionEntryTest(TestCase):
-    """Class to test that the scraper successfully extracts info from the
-    entry of the word 'Endorse'
-
-    We want to make sure that the 'indorse' spelling is stored in the variant
-    word list
+    """Class to test that the scraper successfully choses the word 'Endorse'
+    instead of 'indorse.' We want to use the more common spelling as the main
+    entry whenever possible
     """
     def setUp(self):
-        endorse_html = os.path.join('dictionary', 'html_test_pages',
-                                        'endorse.html')
-        soup = BeautifulSoup(open(endorse_html, encoding='utf-8'),
+        indorse_html = os.path.join('dictionary', 'html_test_pages',
+                                        'indorse.html')
+        soup = BeautifulSoup(open(indorse_html, encoding='utf-8'),
                              'html5lib')
-        mws._manage_dictionary_entries(soup, 'endorse', False)
+        mws._manage_dictionary_entries(soup, 'indorse', False)
 
 
     def test_db_created_successfully(self):
