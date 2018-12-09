@@ -230,13 +230,6 @@ class CapriciousPrecipitateDefinitionEntryTest(TestCase):
 class OstentatiousAffectedDefinitionEntryTest(TestCase):
     """Class to test that the scraper successfully extracts info from the
     entry of the word 'Ostentatious' and then 'affected'
-
-    Ostentatious lists 'affected' as a synonym and 'affected' has its own page.
-    However, we probably want to use 'affect' as the base word for affected.
-    This verifies that this is the case.
-
-    Note: because of the way the scraper test is written, you will need internet
-    connection to retrieve the 'affect' webpage.
     """
     def setUp(self):
         ostentatious_html = os.path.join('dictionary', 'html_test_pages',
@@ -274,28 +267,12 @@ class OstentatiousAffectedDefinitionEntryTest(TestCase):
                             'obviousness',
                         'overly elaborate or conspicuous',
                         'characterized by, fond of, or evincing ostentation',
-                        'the conscious subjective aspect of an emotion '
-                            'considered apart from bodily changes',
-                        'a set of observable manifestations of a subjectively '
-                            'experienced emotion',
-                        'feeling, affection',
-                        'to make a display of liking or using',
-                        'cultivate',
-                        'to put on a pretense of',
-                        'feign',
-                        'to have affection for',
-                        'to be given to',
-                        'fancy',
-                        'to tend toward',
-                        'frequent',
-                        'to aim at',
-                        'incline',
-                        'to produce an effect upon',
-                        'such as',
-                        'to produce a material influence upon or alteration in',
-                        "to act upon (a person, a person's mind or feelings, "
-                            "etc.) so as to effect a response",
-                        'influence',
+                        'having or showing an attitude or mode of behavior that'
+                            ' is not natural or genuinely felt',
+                        'given to or marked by affectation',
+                        'assumed artificially or falsely',
+                        'pretended',
+                        'inclined, disposed',
                        ]
         self.assertEqual(db_definitions, definitions)
 
