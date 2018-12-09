@@ -11,3 +11,4 @@ lib64
 */__pycache__
 */*/__pycache__
 *.sqlite3
+*.DS_Store
