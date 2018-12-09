@@ -88,3 +88,10 @@ def change_word_list_name(request, word_list_id):
             return render(request, 'dictionary/change_word_list_name.html',
                           {'word_list': word_list})
     return render(request, 'dictionary/change_word_list_name.html')
+
+
+def play_game(request, word_list_id):
+    """Handles playing a game for a word list"""
+    word_list = get_object_or_404(models.WordList, pk=word_list_id)
+    return render(request, 'dictionary/play_game.html',
+                  {'word_list': word_list})
