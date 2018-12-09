@@ -278,18 +278,16 @@ class OstentatiousAffectedDefinitionEntryTest(TestCase):
 
 
 class EndorseDefinitionEntryTest(TestCase):
-    """Class to test that the scraper successfully extracts info from the
-    entry of the word 'Endorse'
-
-    We want to make sure that the 'indorse' spelling is stored in the variant
-    word list
+    """Class to test that the scraper successfully choses the word 'Endorse'
+    instead of 'indorse.' We want to use the more common spelling as the main
+    entry whenever possible
     """
     def setUp(self):
-        endorse_html = os.path.join('dictionary', 'html_test_pages',
-                                        'endorse.html')
-        soup = BeautifulSoup(open(endorse_html, encoding='utf-8'),
+        indorse_html = os.path.join('dictionary', 'html_test_pages',
+                                        'indorse.html')
+        soup = BeautifulSoup(open(indorse_html, encoding='utf-8'),
                              'html5lib')
-        mws._manage_dictionary_entries(soup, 'endorse', False)
+        mws._manage_dictionary_entries(soup, 'indorse', False)
 
 
     def test_db_created_successfully(self):
