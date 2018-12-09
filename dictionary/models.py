@@ -96,7 +96,7 @@ class ExampleSentence(models.Model):
 class Synonym(models.Model):
     """Word that has a similar meaning to a FormWord."""
     form_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
-    synonym = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
+    synonym = models.ForeignKey(VariantWord, on_delete=models.CASCADE)
     unique_together = ('form_word', 'synonym')
 
     def __str__(self):
@@ -109,7 +109,7 @@ class Synonym(models.Model):
 class Antonym(models.Model):
     """Word that has the oppositing meaning to a base word."""
     form_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
-    antonym = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
+    antonym = models.ForeignKey(VariantWord, on_delete=models.CASCADE)
     unique_together = ('form_word', 'antonym')
 
     def __str__(self):

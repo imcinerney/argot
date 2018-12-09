@@ -141,19 +141,19 @@ def _add_synonyms(left_content, base_word_):
             m = p.match(word.getText().lower())
             word_text = m.group(1)
             if word_text not in variant_word_set:
-                synonym_base_word = _handle_creating_synonyms(word_text,
-                                                              variant_word_set)
+                synonym_variant_word = _handle_creating_synonyms(word_text,
+                                           variant_word_set)
             else:
-                synonym_base_word = models.VariantWord.objects.all() \
-                                          .get(name=word_text).base_word
+                synonym_variant_word = models.VariantWord.objects.all() \
+                                             .get(name=word_text)
             if synonym_flag == 'synonyms':
                 _, _ = models.Synonym.objects \
                              .get_or_create(form_word=lookup_form_word,
-                                            synonym=synonym_base_word)
+                                            synonym=synonym_variant_word)
             else:
                 _, _ = models.Antonym.objects \
                              .get_or_create(form_word=lookup_form_word,
-                                            antonym=synonym_base_word)
+                                            antonym=synonym_variant_word)
 
 
 def _handle_creating_synonyms(word_text, variant_word_set):
@@ -183,7 +183,7 @@ def _handle_creating_synonyms(word_text, variant_word_set):
         word_text = re.sub('s$', '', word_text)
         if word_text not in variant_word_set:
             scrape_word(word_text)
-    return models.VariantWord.objects.all().get(name=word_text).base_word
+    return models.VariantWord.objects.all().get(name=word_text)
 
 
 def _separate_synonym_pos(synonym_pos, base_word_):
@@ -242,11 +242,14 @@ def _scrape_synonym_section(left_content):
 
 def _scrape_alternative_synonym_section(left_content):
     """Scrapes the alternative synonym listing"""
-    #always going to have synonyms under this header
+    #always going to have synonyms under this header, why we always add synonym
     synonym_header = left_content.find('div',
                                       {'class' : 'syns_discussion'})
     synonym_lists = synonym_header.find_all('p', {'class' : 'syn'})
     synonym_labels = synonym_header.find_all('p', {'class' : None})
+    if len(synonym_labels) == 0:
+        synonym_labels = synonym_header.find_all('p',
+                                                 {'class' : 'function-label'})
     #If there is no pos listed, use the pos of the word
     if len(synonym_labels) == 0:
         if len(synonym_lists) > 1:
@@ -260,7 +263,7 @@ def _scrape_alternative_synonym_section(left_content):
         for label, s_list in zip(synonym_labels, synonym_lists):
             word_list = s_list.find_all('a')
             word_list_text = [word for word in word_list]
-            pos = 'synonyms: ' + label.getText().lower()
+            pos = 'synonyms: ' + _clean_pos_text(label.getText().lower())
             pos_synonym_list.append((pos, word_list_text))
     return pos_synonym_list
 
