@@ -35,7 +35,7 @@ class LoginForm(PasswordForm):
     def clean_username(self):
         username = self.cleaned_data['username']
         if not User.objects.filter(username=username).exists():
-            raise ValidationError(f'A user has registered the '
+            raise ValidationError(f'A user has not registered the '
                                   f'name: {username}')
         return username
 
