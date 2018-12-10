@@ -119,27 +119,25 @@ def _add_synonyms(left_content, base_word_):
     that most entries do. However, there's another section that contains a list
     of synonyms. _scrape_synonym_section() handles the default synonym section,
     while _scrape_alternative_synonym_section() handles the alternative synonym
-    section. They return a list that contains a tuple that stores the part of
-    speech and then a list of words to add to the dictionary and synonym table.
-    Synonyms are tied to the part of speech of a word.
+    section. They return a list that contains a tuple that stores a list of
+    words to add to the dictionary and synonym table.
     """
     try:
-        pos_synonym_list = _scrape_synonym_section(left_content)
+        synonym_list = _scrape_synonym_section(left_content)
     except AttributeError:
         try:
-            pos_synonym_list = _scrape_alternative_synonym_section(left_content)
+            synonym_list = _scrape_alternative_synonym_section(left_content)
         except AttributeError:
             return
-    pos_list = models.PartOfSpeech.objects.all().values_list('name', flat=True)
-    for synonym_pos, word_list in pos_synonym_list:
-        synonym_flag, pos = _separate_synonym_pos(synonym_pos, base_word_)
-        lookup_form_word = _return_form_word(pos, base_word_.name)
+    p = re.compile('(^[a-z\-]*)')
+    for (pos_synonym_flag, word_list) in synonym_list:
         for word in word_list:
             variant_word_set = models.VariantWord.objects.values_list('name',
                                                                       flat=True)
-            p = re.compile('(^[a-z\-]*)')
             m = p.match(word.getText().lower())
             word_text = m.group(1)
+            m = p.match(pos_synonym_flag)
+            synonym_flag = m.group(1)
             if word_text not in variant_word_set:
                 synonym_variant_word = _handle_creating_synonyms(word_text,
                                            variant_word_set)
@@ -148,11 +146,11 @@ def _add_synonyms(left_content, base_word_):
                                              .get(name=word_text)
             if synonym_flag == 'synonyms':
                 _, _ = models.Synonym.objects \
-                             .get_or_create(form_word=lookup_form_word,
+                             .get_or_create(base_word=base_word_,
                                             synonym=synonym_variant_word)
             else:
                 _, _ = models.Antonym.objects \
-                             .get_or_create(form_word=lookup_form_word,
+                             .get_or_create(base_word=base_word_,
                                             antonym=synonym_variant_word)
 
 
@@ -186,40 +184,6 @@ def _handle_creating_synonyms(word_text, variant_word_set):
     return models.VariantWord.objects.all().get(name=word_text)
 
 
-def _separate_synonym_pos(synonym_pos, base_word_):
-    """Returns whether or not the words are synonyms or antonyms and the pos"""
-    pos_list = models.PartOfSpeech.objects.all().values_list('name', flat=True)
-    #Check if there is no part of speech listed
-    if synonym_pos in ['antonyms', 'synonyms']:
-        word_pos = base_word_.return_pos_list()
-        if len(word_pos) != 1:
-            raise ValueError('There is more than one part of speech for a '
-                             'word but the synonym list does not list '
-                             'synonyms in the format we expected. Look at '
-                             'the page for {0}'
-                             .format(base_word.name))
-        else:
-           return (synonym_pos, word_pos[0])
-    else:
-        for pos in pos_list:
-            regex_pattern = '(synonyms|antonyms)[: ]*(' + pos + ')'
-            p = re.compile(regex_pattern)
-            match = p.search(synonym_pos)
-            if match is not None:
-                return (match.group(1), match.group(2))
-        #If it hasn't returned, means that there must be issue
-        raise ValueError(f'The synonym string did not meet the expected pattern'
-                         f'\nThe description was {synonym_pos}')
-
-
-def _return_form_word(pos, base_word_):
-    """Returns the form word object for a given base word and pos"""
-    fw = models.FormWord.objects.annotate(bw=F('base_word__name')) \
-                                .annotate(pos_n=F('pos__name')) \
-                                .get(bw=base_word_, pos_n=pos)
-    return fw
-
-
 def _scrape_synonym_section(left_content):
     """Scrapes the default synonym section for a word. If there is no pos
     listed, use the one listed for the word
@@ -231,41 +195,28 @@ def _scrape_synonym_section(left_content):
     synonym_lists = synonym_header.find_all('p', {'class' : None})
     if len(synonym_labels) != len(synonym_lists):
         raise ValueError('There are an uneven number of labels and lists')
-    pos_synonym_list = []
+    synonym_list = []
     for label, s_list in zip(synonym_labels, synonym_lists):
         word_list = s_list.find_all('a')
         word_list_text = [word for word in word_list]
-        pos = label.getText().lower()
-        pos_synonym_list.append((pos, word_list_text))
-    return pos_synonym_list
+        pos_synonym_flag = label.getText().lower()
+        synonym_list.append((pos_synonym_flag, word_list_text))
+    return synonym_list
 
 
 def _scrape_alternative_synonym_section(left_content):
     """Scrapes the alternative synonym listing"""
-    #always going to have synonyms under this header, why we always add synonym
     synonym_header = left_content.find('div',
                                       {'class' : 'syns_discussion'})
     synonym_lists = synonym_header.find_all('p', {'class' : 'syn'})
-    synonym_labels = synonym_header.find_all('p', {'class' : None})
-    if len(synonym_labels) == 0:
-        synonym_labels = synonym_header.find_all('p',
-                                                 {'class' : 'function-label'})
-    #If there is no pos listed, use the pos of the word
-    if len(synonym_labels) == 0:
-        if len(synonym_lists) > 1:
-            raise ValueError('More than 1 synonym lists, but no pos listed')
-        pos_name = 'synonyms'
-        word_list = synonym_lists[0].find_all('a')
+    synonym_list = []
+    for s_list in synonym_lists:
+        word_list = s_list.find_all('a')
         word_list_text = [word for word in word_list]
-        pos_synonym_list = [(pos_name, word_list_text)]
-    else:
-        pos_synonym_list = []
-        for label, s_list in zip(synonym_labels, synonym_lists):
-            word_list = s_list.find_all('a')
-            word_list_text = [word for word in word_list]
-            pos = 'synonyms: ' + _clean_pos_text(label.getText().lower())
-            pos_synonym_list.append((pos, word_list_text))
-    return pos_synonym_list
+        #Only will list synonyms, so just add synonym as flag
+        synonym_flag = 'synonyms: '
+        synonym_list.append((synonym_flag, word_list_text))
+    return synonym_list
 
 
 def _handle_main_dictionary_entry(left_content, variant_word_set,

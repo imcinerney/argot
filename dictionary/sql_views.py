@@ -17,10 +17,9 @@ def base_word_definitions():
 def base_word_synonyms():
     """Lists every synonym for every base word"""
     qs = (models.BaseWord.objects.all()
-                .annotate(pos=F('formword__pos__name'))
-                .annotate(synonym_name=F('formword__synonym__synonym__name'))
+                .annotate(synonym_name=F('synonym__synonym__name'))
                 .filter(synonym_name__isnull=False)
-                .values('name', 'pos', 'synonym_name')
+                .values('name', 'synonym_name')
          )
     sql_statement = 'create view synonym_list as ' + str(qs.query)
     return sql_statement
@@ -29,10 +28,9 @@ def base_word_synonyms():
 def base_word_antonyms():
     """Lists every antonym for every base word"""
     qs = (models.BaseWord.objects.all()
-                .annotate(pos=F('formword__pos__name'))
-                .annotate(antonym_name=F('formword__antonym__antonym__name'))
+                .annotate(antonym_name=F('antonym__antonym__name'))
                 .filter(antonym_name__isnull=False)
-                .values('name', 'pos', 'antonym_name')
+                .values('name', 'antonym_name')
          )
     sql_statement = 'create view antonym_list as ' + str(qs.query)
     return sql_statement
@@ -47,12 +45,12 @@ def base_word_stats():
     subq2 = (models.BaseWord.objects.all()
                  .filter(id=OuterRef('id'))
                  .annotate(synonym_count=
-                    Count('formword__synonym__synonym__name'))
+                    Count('synonym__synonym__name'))
           )
     subq3 = (models.BaseWord.objects.all()
                  .filter(id=OuterRef('id'))
                  .annotate(antonym_count=
-                    Count('formword__antonym__antonym__name'))
+                    Count('antonym__antonym__name'))
           )
     qs = (models.BaseWord.objects.all()
                 .order_by('id')

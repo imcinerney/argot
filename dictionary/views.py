@@ -6,6 +6,9 @@ from django.views import generic
 from . import models
 from dictionary.forms import SearchWordForm
 from argot.forms import WordListForm
+import random
+from dictionary import merriam_webster_scraper as mws
+import threading
 
 
 def detail(request, base_word_id):
@@ -90,8 +93,30 @@ def change_word_list_name(request, word_list_id):
     return render(request, 'dictionary/change_word_list_name.html')
 
 
+def wait_for_loading(request):
+    return HttpResponse('Wait for a moment while the page is loading')
+
+
 def play_game(request, word_list_id):
     """Handles playing a game for a word list"""
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
+    t1 = threading.Thread(target=wait_for_loading, args=[request])
+    t1.start()
+    t1.join()
+    entry_list = word_list.entries_list()
+    synonym_dict = {}
+    for entry in entry_list:
+        if entry.searched_synonym == False:
+            mws.scrape_word(entry.name, True)
+        formword_list = entry.formword_set.all()
+        synonym_lists = [formword.synonym_set.all() for formword in formword_list]
+        synonyms = []
+        for synonym_list in synonym_lists:
+            for synonym in synonym_list:
+                synonyms.append(synonym.synonym.name)
+        synonym_dict[entry] = synonyms
+    choice = random.choice(entry_list)
+    synonyms = synonym_dict[choice]
     return render(request, 'dictionary/play_game.html',
-                  {'word_list': word_list})
+                  {'word_list': word_list, 'choice': choice,
+                   'synonyms' : synonyms})

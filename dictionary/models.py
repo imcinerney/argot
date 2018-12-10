@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.db.models import F
 
 
 class BaseWord(models.Model):
@@ -95,28 +96,28 @@ class ExampleSentence(models.Model):
 
 class Synonym(models.Model):
     """Word that has a similar meaning to a FormWord."""
-    form_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
+    base_word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     synonym = models.ForeignKey(VariantWord, on_delete=models.CASCADE)
-    unique_together = ('form_word', 'synonym')
+    unique_together = ('base_word', 'synonym')
 
     def __str__(self):
-        return f'{self.form_word} Synonym: {self.synonym}'
+        return f'{self.base_word} Synonym: {self.synonym}'
 
     def __repr__(self):
-        return f'Synonym({self.id!r}, {self.form_word!r}, {self.synonym!r})'
+        return f'Synonym({self.id!r}, {self.base_word!r}, {self.synonym!r})'
 
 
 class Antonym(models.Model):
     """Word that has the oppositing meaning to a base word."""
-    form_word = models.ForeignKey(FormWord, on_delete=models.CASCADE)
+    base_word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     antonym = models.ForeignKey(VariantWord, on_delete=models.CASCADE)
-    unique_together = ('form_word', 'antonym')
+    unique_together = ('base_word', 'antonym')
 
     def __str__(self):
-        return f'{self.form_word} Antonym: {self.antonym}'
+        return f'{self.base_word} Antonym: {self.antonym}'
 
     def __repr__(self):
-        return f'Antonym({self.id!r}, {self.form_word!r}, {self.antonym!r})'
+        return f'Antonym({self.id!r}, {self.base_word!r}, {self.antonym!r})'
 
 
 class WordList(models.Model):
@@ -136,6 +137,10 @@ class WordList(models.Model):
         """Creates an WordListEntry"""
         entry = WordListEntry(word_list=self, word=word)
         entry.save()
+
+    def entries_list(self):
+        entries = self.wordlistentry_set.all()
+        return [entry.word for entry in entries]
 
 
 class WordListEntry(models.Model):

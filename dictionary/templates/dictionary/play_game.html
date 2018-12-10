@@ -1,1 +1,6 @@
 <h1>Welcome to the vocab game. The word list is {{word_list.list_name}}</h1>
+<p>The choice is {{choice}}</p>
+<p>The list of synonyms is as follows:</p>
+{% for synonym in synonyms %}
+  <p> {{ synonym }} </p>
+{% endfor %}
