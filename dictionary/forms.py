@@ -22,6 +22,6 @@ class SearchWordForm(forms.Form):
         variant_word_list = VariantWord.objects.all().values_list('name',
                                                                   flat=True)
         if search_term not in variant_word_list:
-            found_word = mws.scrape_word(search_term)
+            found_word = mws.scrape_word(search_term, True)
             if not found_word:
                 raise ValidationError('Cannot find word in dictionary')

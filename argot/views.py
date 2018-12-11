@@ -1,7 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from dictionary import models
-from dictionary import merriam_webster_scraper as mws
 from argot.forms import LoginForm, RegistrationForm, WordListForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
