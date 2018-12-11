@@ -8,7 +8,7 @@ from dictionary.forms import SearchWordForm
 from argot.forms import WordListForm
 import random
 from dictionary import merriam_webster_scraper as mws
-import threading
+from django.db.models import F
 
 
 def detail(request, base_word_id):
@@ -93,19 +93,47 @@ def change_word_list_name(request, word_list_id):
     return render(request, 'dictionary/change_word_list_name.html')
 
 
-def play_game(request, word_list_id):
-    """Handles playing a game for a word list"""
+def load_game(request, word_list_id):
+    """Handles generating the synonym_dict for the game"""
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
     entry_list = word_list.entries_list()
     synonym_dict = {}
     for entry in entry_list:
         if entry.searched_synonym == False:
             mws.scrape_word(entry.name, True)
-        synonym_list = entry.synonym_set.all()
-        synonyms = [synonym.synonym.name for synonym in synonym_list]
-        synonym_dict[entry] = synonyms
-    choice = random.choice(entry_list)
-    synonyms = synonym_dict[choice]
+        synonym_list = entry.synonym_set.all() \
+                            .annotate(s_base_word_id=F('synonym__base_word'))
+        synonym_dict[entry] = synonym_list
+    all_synonyms = models.Synonym.objects.all() \
+                         .annotate(s_base_word_id=F('synonym__base_word')) \
+                         .annotate(synonym_name=F('synonym__name')) \
+                         .values_list('synonym_name', flat=True)
+    return play_game(request, word_list_id, synonym_dict, all_synonyms)
+
+
+def play_game(request, word_list_id, synonym_dict, all_synonyms):
+    """User will be asked to select the correct synonym out of 4 possible words
+
+    Takes all synonyms of a random word and choses one of the synonym as the
+    correct synonym. Three incorrect synonyms are selected by excluding all
+    synonyms for the selected word and then picking three synonyms from the db
+    as the invalid answers.
+    """
+    word_list = get_object_or_404(models.WordList, pk=word_list_id)
+    entry_list = word_list.entries_list()
+    test_word = random.choice(entry_list)
+    choice_synonyms = synonym_dict[test_word]
+    subq1 = (choice_synonyms.values('s_base_word_id'))
+    non_choice_synonyms = list(all_synonyms
+                                   .exclude(s_base_word_id__in=subq1)
+                                   .values_list('synonym_name', flat=True)
+                              )
+    choice_synonym = random.choice(choice_synonyms).synonym.name
+    non_choice_answers = random.sample(non_choice_synonyms, k=3)
+    choices = [choice_synonym] + non_choice_answers
+    random.shuffle(choices)
     return render(request, 'dictionary/play_game.html',
-                  {'word_list': word_list, 'choice': choice,
-                   'synonyms' : synonyms})
+                  {'word_list': word_list, 'test_word': test_word,
+                   'choices': choices,
+                   'choice_synonym' : choice_synonym,
+                   'non_choice_synonyms': non_choice_synonyms})
