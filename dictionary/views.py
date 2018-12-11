@@ -93,27 +93,16 @@ def change_word_list_name(request, word_list_id):
     return render(request, 'dictionary/change_word_list_name.html')
 
 
-def wait_for_loading(request):
-    return HttpResponse('Wait for a moment while the page is loading')
-
-
 def play_game(request, word_list_id):
     """Handles playing a game for a word list"""
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
-    t1 = threading.Thread(target=wait_for_loading, args=[request])
-    t1.start()
-    t1.join()
     entry_list = word_list.entries_list()
     synonym_dict = {}
     for entry in entry_list:
         if entry.searched_synonym == False:
             mws.scrape_word(entry.name, True)
-        formword_list = entry.formword_set.all()
-        synonym_lists = [formword.synonym_set.all() for formword in formword_list]
-        synonyms = []
-        for synonym_list in synonym_lists:
-            for synonym in synonym_list:
-                synonyms.append(synonym.synonym.name)
+        synonym_list = entry.synonym_set.all()
+        synonyms = [synonym.synonym.name for synonym in synonym_list]
         synonym_dict[entry] = synonyms
     choice = random.choice(entry_list)
     synonyms = synonym_dict[choice]

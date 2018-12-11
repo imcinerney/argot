@@ -19,9 +19,12 @@ class SearchWordForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         search_term = cleaned_data.get('search_term')
-        variant_word_list = VariantWord.objects.all().values_list('name',
-                                                                  flat=True)
-        if search_term not in variant_word_list:
-            found_word = mws.scrape_word(search_term, True)
-            if not found_word:
-                raise ValidationError('Cannot find word in dictionary')
+        if search_term:
+            variant_word_list = VariantWord.objects.all().values_list('name',
+                                                                      flat=True)
+            if search_term not in variant_word_list:
+                found_word = mws.scrape_word(search_term, True)
+                if not found_word:
+                    raise ValidationError('Cannot find word in dictionary')
+        else:
+            raise ValidationError('Must enter a word')
