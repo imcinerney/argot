@@ -12,6 +12,6 @@ urlpatterns = [
          name='delete_word_list'),
     path('word_list/<int:word_list_id>/change_name',
         views.change_word_list_name, name='change_word_list_name'),
-    path('word_list/<int:word_list_id>/load_game', views.load_game,
-         name='load_game'),
+    path('word_list/<int:word_list_id>/play_game', views.play_game,
+         name='play_game'),
 ]

@@ -28,3 +28,16 @@ class SearchWordForm(forms.Form):
                     raise ValidationError('Cannot find word in dictionary')
         else:
             raise ValidationError('Must enter a word')
+
+
+class VocabTestAnswer(forms.Form):
+    """Form to see if user was correct in identifying a synonym"""
+    correct_choice = forms.CharField(max_length=50)
+    choice = forms.CharField(max_length=50)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        correct_answer = cleaned_data.get('correct_choice')
+        choice = cleaned_data.get('choice')
+        if choice is None:
+            raise ValidationError('You must select an answer!')

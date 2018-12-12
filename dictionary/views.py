@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views import generic
 from . import models
-from dictionary.forms import SearchWordForm
+from dictionary.forms import SearchWordForm, VocabTestAnswer
 from argot.forms import WordListForm
 import random
 from dictionary import merriam_webster_scraper as mws
@@ -93,10 +93,8 @@ def change_word_list_name(request, word_list_id):
     return render(request, 'dictionary/change_word_list_name.html')
 
 
-def load_game(request, word_list_id):
+def _return_synonym_dict(entry_list):
     """Handles generating the synonym_dict for the game"""
-    word_list = get_object_or_404(models.WordList, pk=word_list_id)
-    entry_list = word_list.entries_list()
     synonym_dict = {}
     for entry in entry_list:
         if entry.searched_synonym == False:
@@ -104,14 +102,19 @@ def load_game(request, word_list_id):
         synonym_list = entry.synonym_set.all() \
                             .annotate(s_base_word_id=F('synonym__base_word'))
         synonym_dict[entry] = synonym_list
+    return synonym_dict
+
+
+def _return_all_synonyms():
+    """Queries for all the list of synonyms with the baseword ids as well"""
     all_synonyms = models.Synonym.objects.all() \
                          .annotate(s_base_word_id=F('synonym__base_word')) \
                          .annotate(synonym_name=F('synonym__name')) \
                          .values_list('synonym_name', flat=True)
-    return play_game(request, word_list_id, synonym_dict, all_synonyms)
+    return all_synonyms
 
 
-def play_game(request, word_list_id, synonym_dict, all_synonyms):
+def play_game(request, word_list_id):
     """User will be asked to select the correct synonym out of 4 possible words
 
     Takes all synonyms of a random word and choses one of the synonym as the
@@ -120,7 +123,22 @@ def play_game(request, word_list_id, synonym_dict, all_synonyms):
     as the invalid answers.
     """
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
+    if request.method == 'POST':
+        form = VocabTestAnswer(request.POST)
+        if form.is_valid():
+            choice = form.cleaned_data['choice']
+            correct_choice = form.cleaned_data['correct_choice']
+            if choice == correct_choice:
+                msg = 'Nice! Correct synonym'
+            else:
+                msg = f'Wrong answer. The correct synonym is: {correct_choice}'
+        else:
+            msg = 'You have to select an answer!'
+    else:
+        msg = ''
     entry_list = word_list.entries_list()
+    synonym_dict = _return_synonym_dict(entry_list)
+    all_synonyms = _return_all_synonyms()
     test_word = random.choice(entry_list)
     choice_synonyms = synonym_dict[test_word]
     subq1 = (choice_synonyms.values('s_base_word_id'))
@@ -136,4 +154,6 @@ def play_game(request, word_list_id, synonym_dict, all_synonyms):
                   {'word_list': word_list, 'test_word': test_word,
                    'choices': choices,
                    'choice_synonym' : choice_synonym,
-                   'non_choice_synonyms': non_choice_synonyms})
+                   'non_choice_synonyms': non_choice_synonyms,
+                   'msg' : msg,
+                   })
