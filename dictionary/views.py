@@ -31,9 +31,11 @@ def view_word_list(request, word_list_id):
         if list_owner != request.user:
             return HttpResponseRedirect('/')
         else:
+            word_list.view_count += 1
             profile = request.user.profile
             profile.active_word_list = word_list
             profile.save()
+            word_list.save()
             return render(request, 'dictionary/view_word_list.html',
                           {'word_list' : word_list})
     else:
