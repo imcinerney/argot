@@ -99,8 +99,10 @@ def create_word_list(request):
             form = WordListForm(request.POST)
             if form.is_valid():
                 list_name = form.cleaned_data['list_name']
+                is_public = form.cleaned_data['is_public']
                 word_list = models.WordList(list_name=list_name,
-                                            user=request.user)
+                                            user=request.user,
+                                            is_public=is_public)
                 word_list.save()
                 word_list_id = word_list.id
                 return HttpResponseRedirect(f'dictionary/word_list/'

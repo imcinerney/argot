@@ -125,6 +125,7 @@ class WordList(models.Model):
     list_name = models.CharField(max_length=50)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     view_count = models.PositiveIntegerField(default=0)
+    is_public = models.BooleanField(default=False)
 
     @property
     def word_list_length(self):

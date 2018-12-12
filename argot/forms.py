@@ -78,6 +78,7 @@ class WordListForm(forms.Form):
     exceed the maximum word list name"""
     max_list_name_length = 50
     list_name = forms.CharField(max_length=max_list_name_length * 2)
+    is_public = forms.BooleanField()
 
     def clean_list_name(self):
         list_name = self.cleaned_data['list_name']
