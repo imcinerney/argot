@@ -6,7 +6,7 @@ urlpatterns = [
     path('<int:base_word_id>/', views.detail, name='detail'),
     path('word_list/<int:word_list_id>/', views.view_word_list,
          name='view_word_list'),
-    path('word_list<int:word_list_id>/add_words_to_word_list',
+    path('word_list/<int:word_list_id>/add_words_to_word_list',
           views.add_words_to_word_list, name='add_words_to_word_list'),
     path('word_list/delete/<int:word_list_id>', views.delete_word_list,
          name='delete_word_list'),
@@ -14,4 +14,6 @@ urlpatterns = [
         views.change_word_list_name, name='change_word_list_name'),
     path('word_list/<int:word_list_id>/play_game', views.play_game,
          name='play_game'),
+    path('word_list/<int:word_list_id>/change_privacy', views.change_privacy,
+         name='change_privacy'),
 ]

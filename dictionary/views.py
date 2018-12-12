@@ -95,6 +95,18 @@ def change_word_list_name(request, word_list_id):
     return render(request, 'dictionary/change_word_list_name.html')
 
 
+def change_privacy(request, word_list_id):
+    """Changes the privacy of the word list"""
+    word_list = get_object_or_404(models.WordList, pk=word_list_id)
+    list_owner = word_list.user
+    if request.user == list_owner:
+        privacy = word_list.is_public
+        word_list.is_public = not privacy
+        word_list.save()
+        return HttpResponseRedirect(reverse('dictionary:word_list',
+                                            args(word_list_id,)))
+
+
 def _return_synonym_dict(entry_list):
     """Handles generating the synonym_dict for the game"""
     synonym_dict = {}
