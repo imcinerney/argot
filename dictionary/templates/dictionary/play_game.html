@@ -1,0 +1,15 @@
+<h1>Welcome to the vocab game. The word list is {{word_list.list_name}}</h1>
+<h1>{{msg}}</h1>
+<p>Select the word that most closely describes {{ test_word }}</p>
+<form action="{% url 'dictionary:play_game' word_list.id  %}" method="POST">
+{% csrf_token %}
+{% for choice in choices %}
+  {% if choice == choice_synonym %}
+    {{form.correct_choice}}<input type='hidden' name='correct_choice' value={{choice}}>
+    <input type='radio' name='choice' value="{{choice}}">{{choice}}</input>
+  {% else %}
+    <input type='radio' name='choice' value="{{choice}}">{{choice}}</input>
+  {% endif %}
+{% endfor %}
+<input type="submit" value='Submit'/>
+</form>
