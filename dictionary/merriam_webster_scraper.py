@@ -139,7 +139,7 @@ def _add_synonyms(left_content, base_word_):
             synonym_flag = m.group(1)
             if word_text not in variant_word_set:
                 synonym_variant_word = _handle_creating_synonyms(word_text,
-                                           variant_word_set)
+                                           variant_word_set, synonym_flag)
             else:
                 synonym_variant_word = models.VariantWord.objects.all() \
                                              .get(name=word_text)
@@ -153,7 +153,7 @@ def _add_synonyms(left_content, base_word_):
                                             antonym=synonym_variant_word)
 
 
-def _handle_creating_synonyms(word_text, variant_word_set):
+def _handle_creating_synonyms(word_text, variant_word_set, synonym_flag):
     """Adds synonym to db and returns the associated base word
 
     Keyword arguments:
@@ -172,7 +172,11 @@ def _handle_creating_synonyms(word_text, variant_word_set):
     page. When we try to add 'settling' to the database, there will be an error,
     because 'settling' was already added to the variant word set.
     """
-    print(f'looking up the synonym: {word_text}')
+    if synonym_flag == 'synonyms':
+        msg = 'synonym'
+    else:
+        msg = 'antonym'
+    print(f'looking up the {msg}: {word_text}')
     time.sleep(2)
     try:
         scrape_word(word_text)
