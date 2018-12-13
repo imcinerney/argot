@@ -63,11 +63,8 @@ def _manage_dictionary_entries(soup, word, search_synonym):
                                                             search_synonym)
     if base_word_ is None:
         return None
-    different_spellings = _compile_alternate_spellings(left_content, word_name,
-                                                       word, variant_word_set)
-    for spelling in different_spellings:
-        _, _ = (models.VariantWord.objects.get_or_create(base_word=base_word_,
-                                                         name=spelling))
+    _compile_alternate_spellings(left_content, word_name, word,
+                                 variant_word_set)
     if search_synonym:
         _add_synonyms(left_content, base_word_)
 
@@ -88,7 +85,9 @@ def _compile_alternate_spellings(left_content, word_name, word,
              different_spellings.add(different_form.getText().strip())
     different_spellings = [spelling for spelling in different_spellings
                            if spelling not in variant_word_set]
-    return different_spellings
+    for spelling in different_spellings:
+        _, _ = (models.VariantWord.objects.get_or_create(base_word=base_word_,
+                                                         name=spelling))
 
 
 def load_list_of_words(filename):
