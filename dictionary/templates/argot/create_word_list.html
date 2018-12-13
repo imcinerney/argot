@@ -1,6 +1,7 @@
 <p>Enter a name for your list to be called</p>
 <form method='POST' action="{% url 'create_word_list' %}">
   {% csrf_token %}
-  List Name: {{ form.list_name }}<input type="text" name='list_name'>
+  <div>List Name: {{ form.list_name }}<input type="text" name='list_name'></div>
+  <div>Make List Public: {{form.is_public}}<input type="checkbox" name="is_public"></div>
   <input type="submit" value='Create List'/>
  </form>

@@ -99,8 +99,10 @@ def create_word_list(request):
             form = WordListForm(request.POST)
             if form.is_valid():
                 list_name = form.cleaned_data['list_name']
+                is_public = form.cleaned_data['is_public']
                 word_list = models.WordList(list_name=list_name,
-                                            user=request.user)
+                                            user=request.user,
+                                            is_public=is_public)
                 word_list.save()
                 word_list_id = word_list.id
                 return HttpResponseRedirect(f'dictionary/word_list/'
@@ -110,3 +112,11 @@ def create_word_list(request):
         else:
             return render(request, 'argot/create_word_list.html')
     return HttpResponseRedirect('/')
+
+
+def top_word_lists(request):
+    """Displays the top 5 most viewed word lists"""
+    top_word_lists = models.WordList.objects.filter(is_public=True) \
+                           .order_by('-view_count')[:5]
+    return render(request, 'argot/top_word_lists.html',
+                  {'top_word_lists' : top_word_lists})

@@ -26,6 +26,8 @@
       Number of words: {{user.profile.active_word_list.word_list_length}}
       <p>&nbsp;</p>
    {% endif %}
+   <a href='/top_word_lists'><button>Popular Word Lists</button></a>
+   <p>&nbsp;</p>
    <form action='' method='GET'>
    {{form.search_term}} Look Up A Word: <input type="text" name="search_term" placeholder="Enter a word..."/>
    <input type="submit" value='search'/>
