@@ -14,6 +14,8 @@ from django.db.models import F
 def detail(request, base_word_id):
     """Displays the definition page for a baseword"""
     word = get_object_or_404(models.BaseWord, pk=base_word_id)
+    if word.searched_synonym == False:
+        mws.scrape_word(word.name, True)
     return render(request, 'dictionary/detail.html', {'word': word})
 
 
