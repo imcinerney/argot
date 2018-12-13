@@ -81,39 +81,6 @@ def user_logout(request):
     return HttpResponseRedirect('/')
 
 
-def word_lists(request):
-    """Display the name of all word lists and the number of words in them"""
-    if request.user.is_authenticated:
-        user = request.user
-        word_lists = user.wordlist_set.all()
-        return render(request, 'argot/word_lists.html',
-                      {'word_lists': word_lists})
-    else:
-        return HttpResponseRedirect('/')
-
-
-def create_word_list(request):
-    """User can input name of word list to create new word list"""
-    if request.user.is_authenticated:
-        if request.method == 'POST':
-            form = WordListForm(request.POST)
-            if form.is_valid():
-                list_name = form.cleaned_data['list_name']
-                is_public = form.cleaned_data['is_public']
-                word_list = models.WordList(list_name=list_name,
-                                            user=request.user,
-                                            is_public=is_public)
-                word_list.save()
-                word_list_id = word_list.id
-                return HttpResponseRedirect(f'dictionary/word_list/'
-                                            f'{word_list_id}')
-            else:
-                return HttpResponse(f'Issues with list_name:{form.errors}')
-        else:
-            return render(request, 'argot/create_word_list.html')
-    return HttpResponseRedirect('/')
-
-
 def top_word_lists(request):
     """Displays the top 5 most viewed word lists"""
     top_word_lists = models.WordList.objects.filter(is_public=True) \

@@ -21,7 +21,7 @@
         <a href='/dictionary/word_list/{{user.profile.active_word_list.id}}'>
           {{user.profile.active_word_list}}  </a>
         {% endif %}
-      <a href='/word_lists'><button>Click to Change</button></a>
+      <a href='/dictionary/word_list/view_user_word_lists'><button>Click to Change</button></a>
       <p></p>
       Number of words: {{user.profile.active_word_list.word_list_length}}
       <p>&nbsp;</p>
@@ -33,7 +33,7 @@
    <input type="submit" value='search'/>
    </form>
    {% if user.is_authenticated %}
-   <a href="/word_lists"><button>Word Lists</button></a>
+   <a href="/dictionary/word_list/view_user_word_lists"><button>Word Lists</button></a>
    <p></p>
    <a href="/user_logout"><button>Logout</button></a>
    {% else %}
