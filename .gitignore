@@ -13,3 +13,4 @@ lib64
 *.sqlite3
 *.DS_Store
 dictionary/sql_queries
+env
