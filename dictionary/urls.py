@@ -16,4 +16,8 @@ urlpatterns = [
          name='play_game'),
     path('word_list/<int:word_list_id>/change_privacy', views.change_privacy,
          name='change_privacy'),
+    path('word_list/view_user_word_lists', views.view_user_word_lists,
+         name='view_user_word_lists'),
+    path('word_list/create_word_list', views.create_word_list,
+         name='create_word_list'),
 ]

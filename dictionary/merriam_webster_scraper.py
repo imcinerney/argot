@@ -63,13 +63,13 @@ def _manage_dictionary_entries(soup, word, search_synonym):
                                                             search_synonym)
     if base_word_ is None:
         return None
-    _compile_alternate_spellings(left_content, word_name, word,
+    _compile_alternate_spellings(left_content, word_name, word, base_word_,
                                  variant_word_set)
     if search_synonym:
         _add_synonyms(left_content, base_word_)
 
 
-def _compile_alternate_spellings(left_content, word_name, word,
+def _compile_alternate_spellings(left_content, word_name, word, base_word_,
                                  variant_word_set):
     """Search the page for the various different various forms for a word"""
     alternate_forms = left_content.find_all('span', {'class' : 'vg-ins'})

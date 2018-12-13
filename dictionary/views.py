@@ -40,6 +40,28 @@ def _display_word_list(request, word_list_id):
                   {'word_list' : word_list})
 
 
+def create_word_list(request):
+    """User can input name of word list to create new word list"""
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            form = WordListForm(request.POST)
+            if form.is_valid():
+                list_name = form.cleaned_data['list_name']
+                is_public = form.cleaned_data['is_public']
+                word_list = models.WordList(list_name=list_name,
+                                            user=request.user,
+                                            is_public=is_public)
+                word_list.save()
+                word_list_id = word_list.id
+                return HttpResponseRedirect(f'/dictionary/word_list/'
+                                            f'{word_list_id}')
+            else:
+                return HttpResponse(f'Issues with list_name:{form.errors}')
+        else:
+            return render(request, 'dictionary/create_word_list.html')
+    return HttpResponseRedirect('/')
+
+
 def add_words_to_word_list(request, word_list_id):
     """Handles adding words to the word list"""
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
@@ -59,6 +81,17 @@ def add_words_to_word_list(request, word_list_id):
         return HttpResponseRedirect('/')
 
 
+def view_user_word_lists(request):
+    """Display the name of all word lists and the number of words in them"""
+    if request.user.is_authenticated:
+        user = request.user
+        word_lists = user.wordlist_set.all()
+        return render(request, 'dictionary/view_user_word_lists.html',
+                      {'word_lists': word_lists})
+    else:
+        return HttpResponseRedirect('/')
+
+
 def delete_word_list(request, word_list_id):
     """Handles deleting a word list. Must be the owner in order to delete"""
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
@@ -68,7 +101,8 @@ def delete_word_list(request, word_list_id):
             return HttpResponseRedirect('/')
         else:
             word_list.delete()
-            return HttpResponseRedirect(reverse('word_lists'))
+            return HttpResponseRedirect(
+                reverse('dictionary:view_user_word_lists'))
     else:
         return HttpResponseRedirect('/')
 
@@ -115,7 +149,8 @@ def _return_synonym_dict(entry_list):
             mws.scrape_word(entry.name, True)
         synonym_list = entry.synonym_set.all() \
                             .annotate(s_base_word_id=F('synonym__base_word'))
-        synonym_dict[entry] = synonym_list
+        if len(synonym_list) != 0:
+            synonym_dict[entry] = synonym_list
     return synonym_dict
 
 
@@ -152,6 +187,8 @@ def play_game(request, word_list_id):
         msg = ''
     entry_list = word_list.entries_list()
     synonym_dict = _return_synonym_dict(entry_list)
+    #some entries don't have synonyms
+    entry_list = list(synonym_dict.keys())
     all_synonyms = _return_all_synonyms()
     test_word = random.choice(entry_list)
     choice_synonyms = synonym_dict[test_word]

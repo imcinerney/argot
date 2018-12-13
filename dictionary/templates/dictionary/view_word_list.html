@@ -5,10 +5,10 @@
 <p></p>
 <p>Currently your list is {% if word_list.is_public %} public. That means
 that everyone can view your list. {% else %} private. That means only you can
-view your list. {% endif %} <a href='/dictionary/word_list/{{word_list.id}}/change_privacy'><button>Click here to change</button></a>
+view your list. {% endif %} <a href='/dictionary/word_list/{{word_list.id}}/change_privacy'><button>Change</button></a>
 </p>
 {% endif %}
-<p>Current list of words:</p>
+<p>List of words:</p>
 {% for word in word_list.wordlistentry_set.all %}
   <li><a href="/dictionary/{{ word.word.id }}/">{{ word.word }}</a></li>
 {% endfor %}
@@ -19,7 +19,9 @@ view your list. {% endif %} <a href='/dictionary/word_list/{{word_list.id}}/chan
   {{ form.search_term }}Add word to list: <input type="text" name='search_term'>
   <input type="submit" value='Add Word'>
  </form>
+ <a href="/dictionary/word_list/view_user_word_lists"><button>View All Your Word Lists</button></a>
  {% endif %}
-<a href="/word_lists"><button>Back to WordLists</button></a>
 <p></p>
-<a href='/'><button>Back to Home</button></a>
+<a href='/dictionary/word_list/{{word_list.id}}/play_game'><button>Practice This List</button></a>
+<p></p>
+<a href='/'><button>Home</button></a>
