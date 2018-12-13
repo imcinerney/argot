@@ -18,28 +18,26 @@ def detail(request, base_word_id):
 
 
 def view_word_list(request, word_list_id):
-    """Displays list of all words and lets user add new words.
-
-    Currently if a user is not logged in and the word list isn't hers, she will
-    not be able to see the list. Will eventually change to have the option to
-    hide / show word lists to non-owners. Maybe also have the option to allow
-    other users to add as well?
-    """
+    """Displays list of all words and lets user add new words."""
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
-    if request.user.is_authenticated:
-        list_owner = word_list.user
-        if list_owner != request.user:
-            return HttpResponseRedirect('/')
-        else:
-            word_list.view_count += 1
-            profile = request.user.profile
-            profile.active_word_list = word_list
-            profile.save()
-            word_list.save()
-            return render(request, 'dictionary/view_word_list.html',
-                          {'word_list' : word_list})
+    is_public = word_list.is_public
+    if is_public or (word_list.user == request.user):
+        return _display_word_list(request, word_list_id)
     else:
         return HttpResponseRedirect('/')
+
+
+def _display_word_list(request, word_list_id):
+    """Displays word_list, increased view count, and turns to active if owner"""
+    word_list = get_object_or_404(models.WordList, pk=word_list_id)
+    word_list.view_count += 1
+    word_list.save()
+    if word_list.user == request.user:
+        profile = request.user.profile
+        profile.active_word_list = word_list
+        profile.save()
+    return render(request, 'dictionary/view_word_list.html',
+                  {'word_list' : word_list})
 
 
 def add_words_to_word_list(request, word_list_id):

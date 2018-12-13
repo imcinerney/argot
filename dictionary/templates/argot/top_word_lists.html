@@ -1,12 +1,17 @@
-<table style="table-layout: fixed; width: 15%">
+<table style="table-layout: fixed; width: 20%">
   <th>Word List Name</th>
+  <th>Word List Owner</th>
   <th>Number of Views</th>
   <th>Number of Words</th>
   <tr></tr>
 {% for word_list in top_word_lists %}
   <tr>
-    <td><a href='/dictionary/word_list/{{word_list.id}}'>{{word_list}}</a></td>
+    <td><a href='/dictionary/word_list/{{word_list.id}}/'>{{word_list}}</a></td>
+    <td align='center'>{{word_list.user.username}}</td>
     <td align='center'>{{word_list.view_count}}</td>
     <td align='center'>{{word_list.word_list_length}}</td>
   </tr>
 {% endfor %}
+</table>
+<p></p>
+<a href='/'><button>Home</button></a>
