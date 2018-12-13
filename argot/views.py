@@ -5,6 +5,7 @@ from argot.forms import LoginForm, RegistrationForm, WordListForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from dictionary.forms import SearchWordForm
+from dictionary import merriam_webster_scraper as mws
 
 
 def home(request):
@@ -21,9 +22,12 @@ def home(request):
     if query:
         form = SearchWordForm(request.GET)
         if form.is_valid():
+
             search_term = form.cleaned_data['search_term']
             base_word = models.VariantWord.objects.get(name=search_term) \
                               .base_word
+            if base_word.searched_synonym == False:
+                mws.scrape_word(base_word.name, True)
             if word_list is not None:
                 word_list.add_word(base_word)
             return render(request, 'dictionary/detail.html',
