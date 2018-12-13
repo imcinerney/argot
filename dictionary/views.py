@@ -103,8 +103,10 @@ def change_privacy(request, word_list_id):
         privacy = word_list.is_public
         word_list.is_public = not privacy
         word_list.save()
-        return HttpResponseRedirect(reverse('dictionary:word_list',
-                                            args(word_list_id,)))
+        return HttpResponseRedirect(reverse('dictionary:view_word_list',
+                                            args=(word_list_id,)))
+    else:
+        return HttpResponse('ok')
 
 
 def _return_synonym_dict(entry_list):

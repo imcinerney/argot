@@ -3,7 +3,7 @@
 <p></p>
 <p>Currently your list is {% if word_list.is_public %} public. That means
 that everyone can view your list. {% else %} private. That means only you can
-view your list. {% endif %} <a href='dictionary/word_list/{{word_list.id}}/change_privacy/'><button>Click here to change</button></a>
+view your list. {% endif %} <a href='/dictionary/word_list/{{word_list.id}}/change_privacy'><button>Click here to change</button></a>
 </p>
 <p>Current list of words:</p>
 {% for word in word_list.wordlistentry_set.all %}
