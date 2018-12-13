@@ -12,4 +12,18 @@
     {% endfor %}
 {% endfor %}
 </ul>
+{% if word.synonym_set.all %}
+  <ul>Synonyms:</ul>
+  {% for synonym in word.synonym_set.all %}
+    <li><a href='/dictionary/{{synonym.synonym.base_word.id}}'>{{synonym.synonym.name}}</a></li>
+  {% endfor %}
+  <p></p>
+{% endif %}
+{% if word.antonym_set.all %}
+  <ul>Antonyms:</ul>
+  {% for antonym in word.antonym_set.all %}
+    <li><a href='/dictionary/{{antonym.antonym.base_word.id}}'>{{antonym.antonym.name}}</a></li>
+  {% endfor %}
+  <p></p>
+{% endif %}
 <a href='/'><button>Back to Home</button></a>
