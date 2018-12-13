@@ -28,4 +28,5 @@ urlpatterns = [
     path('word_lists', home_views.word_lists, name='word_lists'),
     path('create_word_list', home_views.create_word_list,
          name='create_word_list'),
+    path('top_word_lists', home_views.top_word_lists, name='top_word_lists'),
 ]

@@ -112,3 +112,11 @@ def create_word_list(request):
         else:
             return render(request, 'argot/create_word_list.html')
     return HttpResponseRedirect('/')
+
+
+def top_word_lists(request):
+    """Displays the top 5 most viewed word lists"""
+    top_word_lists = models.WordList.objects.filter(is_public=True) \
+                           .order_by('-view_count')[:5]
+    return render(request, 'argot/top_word_lists.html',
+                  {'top_word_lists' : top_word_lists})
