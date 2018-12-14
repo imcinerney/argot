@@ -20,6 +20,34 @@ def scrape_word(word, search_synonym=False):
 
     Returns True if word found, False if not
     """
+    variant_word_set = models.VariantWord.objects.all().values_list('name',
+                                                                    flat=True)
+    if word in variant_word_set:
+        if not search_synonym:
+            return True
+        else:
+            base_word_ = models.VariantWord.objects.get(name=word).base_word
+            if base_word_.searched_synonym:
+                return True
+            else:
+                synonyms_to_lookup = base_word_.synonymstolookup_set.all()
+                for synonym in synonyms_to_lookup:
+                    valid_word = scrape_word(synonym.lookup_word)
+                    if valid_word:
+                        synonym_vw = models.VariantWord.objects \
+                                                       .get(name=word)
+                        if synonym.is_synonym:
+                            _ = models.Synonym.objects \
+                                      .get_or_create(base_word=base_word_,
+                                                     synonym=synonym_vw)
+                        else:
+                            _ = models.Antonym.objects \
+                                      .get_or_create(base_word=base_word_,
+                                                     antonym=synonym_vw)
+                    synonym.delete()
+                base_word_.searched_synonym = True
+                base_word_.save()
+                return True
     url = 'https://www.merriam-webster.com/dictionary/' + word
     try:
         r = requests.get(url, timeout=10)
