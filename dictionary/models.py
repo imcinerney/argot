@@ -166,6 +166,7 @@ class SynonymsToLookUp(models.Model):
     """
     base_word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     lookup_word = models.CharField(max_length=50)
+    is_synonym = models.BooleanField()
     unique_together = ('base_word', 'lookup_word')
 
     def __str__(self):

@@ -65,8 +65,7 @@ def _manage_dictionary_entries(soup, word, search_synonym):
         return None
     _compile_alternate_spellings(left_content, word_name, word, base_word_,
                                  variant_word_set)
-    if search_synonym:
-        _add_synonyms(left_content, base_word_)
+    _add_synonyms(left_content, base_word_, search_synonym)
 
 
 def _compile_alternate_spellings(left_content, word_name, word, base_word_,
@@ -102,13 +101,15 @@ def load_list_of_words(filename):
             time.sleep(1)
 
 
-def _add_synonyms(left_content, base_word_):
+def _add_synonyms(left_content, base_word_, search_synonym):
     """Adds synonyms to database
 
     Keyword arguments:
     left_content -- the portion of the merriam-webster webpage that stores the
     pertinent information for building our entry
     base_word_ -- BaseWord object associated with the word we are looking up
+    search_synonym -- tells us whether to lookup the synonyms or stow them in
+    the SynonymsToLookUp table
 
     Adds synonyms listed on page, checks to see if words are in database,
     if they are not, call scrape_word() to add them and then add to database.
@@ -128,6 +129,14 @@ def _add_synonyms(left_content, base_word_):
             synonym_list = _scrape_alternative_synonym_section(left_content)
         except AttributeError:
             return
+    if search_synonym:
+        _create_synonyms(left_content, base_word_, synonym_list)
+    else:
+        _create_synonym_lookups(left_content, base_word_, synonym_list)
+
+
+def _create_synonyms(left_content, base_word_, synonym_list):
+    """Creates synonyms for a word"""
     p = re.compile('(^[a-z\-]*)')
     for (pos_synonym_flag, word_list) in synonym_list:
         for word in word_list:
@@ -151,6 +160,22 @@ def _add_synonyms(left_content, base_word_):
                 _, _ = models.Antonym.objects \
                              .get_or_create(base_word=base_word_,
                                             antonym=synonym_variant_word)
+
+
+def _create_synonym_lookups(left_content, base_word_, synonym_list):
+    """Stows away synonyms to lookup when we don't have to look them up now"""
+    p = re.compile('(^[a-z\-]*)')
+    for (pos_synonym_flag, word_list) in synonym_list:
+        for word in word_list:
+            m = p.match(word.getText().lower())
+            word_text = m.group(1)
+            m = p.match(pos_synonym_flag)
+            synonym_flag = m.group(1)
+            is_synonym = synonym_flag == 'synonyms'
+            _, _ = models.SynonymsToLookUp.objects \
+                         .get_or_create(base_word=base_word_,
+                                        lookup_word=word_text,
+                                        is_synonym=is_synonym)
 
 
 def _handle_creating_synonyms(word_text, variant_word_set, synonym_flag):
