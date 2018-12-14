@@ -404,9 +404,8 @@ def _clean_example_text(example_text):
     p = re.compile('([A-z][A-z ,-\\\/()]*)')
     match = p.search(example_text)
     if match is None:
-        raise (ValueError('Something wrong happened when extracting the part '
-                          'of speech. The extracted text is: {0}'
-                          .format(example_text)))
+        raise (ValueError(f'Something wrong happened when extracting the part '
+                          f'of speech. The extracted text is: {example_text}'))
     return match.group()
 
 
@@ -433,9 +432,8 @@ def _clean_pos_text(pos_text):
     p = re.compile('([A-z ]*)')
     match = p.search(pos_text)
     if match.group() is None:
-        raise (ValueError('Something wrong happened when extracting the part '
-                          'of speech. The extracted text is: {0}'
-                          .format(pos_text)))
+        raise (ValueError(f'Something wrong happened when extracting the part '
+                          f'of speech. The extracted text is: {pos_text}'))
     else:
         return match.group().strip()
 
