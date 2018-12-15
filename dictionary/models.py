@@ -170,7 +170,7 @@ class SynonymsToLookUp(models.Model):
     unique_together = ('base_word', 'lookup_word')
 
     def __str__(self):
-        return f'BaseWord: {base_word} Word to lookup: {lookup_word}'
+        return f'BaseWord: {self.base_word} Word to lookup: {self.lookup_word}'
 
 
 class Profile(models.Model):

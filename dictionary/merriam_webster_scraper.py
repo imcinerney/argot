@@ -20,18 +20,37 @@ def scrape_word(word, search_synonym=False):
 
     Returns True if word found, False if not
     """
+    if _already_entered(word, search_synonym):
+        return True
+    url = 'https://www.merriam-webster.com/dictionary/' + word
+    try:
+        r = requests.get(url, timeout=10)
+    except requests.exceptions.Timeout:
+        time.sleep(5)
+        return scrape_word(word, search_synonym)
+    if r.status_code == 404:
+        return False
+    soup = BeautifulSoup(r.content, 'html5lib')
+    _manage_dictionary_entries(soup, word, search_synonym)
+    return True
+
+
+def _already_entered(word, search_synonym):
+    """Checks to see if a word is already entered.
+
+    If a word has been entered, check if the synonyms have been searched. If
+    they haven't and search_synonym is true, then lookup all of the words
+    associated with the baseword in the SynonymsToLookUp table
+    """
     variant_word_set = models.VariantWord.objects.all().values_list('name',
                                                                     flat=True)
     if word in variant_word_set:
-        if not search_synonym:
-            return True
-        else:
+        if search_synonym:
             base_word_ = models.VariantWord.objects.get(name=word).base_word
-            if base_word_.searched_synonym:
-                return True
-            else:
+            if not base_word_.searched_synonym:
                 synonyms_to_lookup = base_word_.synonymstolookup_set.all()
                 for synonym in synonyms_to_lookup:
+                    print(f'Looking up the synonym: {synonym.lookup_word}')
                     valid_word = scrape_word(synonym.lookup_word)
                     if valid_word:
                         synonym_vw = models.VariantWord.objects \
@@ -47,18 +66,9 @@ def scrape_word(word, search_synonym=False):
                     synonym.delete()
                 base_word_.searched_synonym = True
                 base_word_.save()
-                return True
-    url = 'https://www.merriam-webster.com/dictionary/' + word
-    try:
-        r = requests.get(url, timeout=10)
-    except requests.exceptions.Timeout:
-        time.sleep(5)
-        return scrape_word(word, search_synonym)
-    if r.status_code == 404:
+        return True
+    else:
         return False
-    soup = BeautifulSoup(r.content, 'html5lib')
-    _manage_dictionary_entries(soup, word, search_synonym)
-    return True
 
 
 def fill_in_synonyms():
@@ -165,7 +175,7 @@ def _add_synonyms(left_content, base_word_, search_synonym):
 
 def _create_synonyms(left_content, base_word_, synonym_list):
     """Creates synonyms for a word"""
-    p = re.compile('(^[a-z\-]*)')
+    p = re.compile('(^[\w\-]*)')
     for (pos_synonym_flag, word_list) in synonym_list:
         for word in word_list:
             variant_word_set = models.VariantWord.objects.values_list('name',
@@ -192,7 +202,7 @@ def _create_synonyms(left_content, base_word_, synonym_list):
 
 def _create_synonym_lookups(left_content, base_word_, synonym_list):
     """Stows away synonyms to lookup when we don't have to look them up now"""
-    p = re.compile('(^[a-z\-]*)')
+    p = re.compile('(^[\w\-]*)', re.UNICODE)
     for (pos_synonym_flag, word_list) in synonym_list:
         for word in word_list:
             m = p.match(word.getText().lower())
