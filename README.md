@@ -2,7 +2,7 @@
 argot tries to solve the problem of looking up a word and forgetting it 20 minutes later, by having your dictionary keep track of words you searched. Users can create lists for different works they are reading or just keep one for all the words they are unfamiliar with. argot works by scraping a word's definition, synonyms, parts of speech, different spellings, etc., and uses Django to store and organize this information. Users can create word lists to keep track of words that they look up and use argot to quiz themselves on their meaning.
 
 ## Motivation
-While reading Infinite Jest, I was constantly opening my dictionary to look up some obscure, esoteric word. This word would often be one that I would want to remember, but due to the volume of words I looked up, I probably only retained about 10% of them. Thus, I wanted to create a website that would allow you to look up a word and keep track of what words you looked up so you can:
+While reading Infinite Jest, I was constantly opening my dictionary to look up some obscure, esoteric word. This word would often be one that I would want to remember, but due to the volume of other words I was looking up, I probably only retained the meaning of the word 10% of the time. Thus, I wanted to create a website that would allow you to look up a word and keep track of what words you looked up so you can:
   A) remember what words you looked up and B) quiz yourself on these words' meanings.
 
 ## Build status
@@ -19,7 +19,7 @@ Here are instructions on how to setup a virtual environment on the major operati
 Mac OS/Linux
 --------------
 ```
-python3 -m virtualenv env  
+python3 -m venv env
 source env/bin/activate  
 pip install -r requirements.txt  
 ```
