@@ -155,6 +155,24 @@ class WordListEntry(models.Model):
         return f'Word List: {self.word_list.list_name}, Word Name: {self.word}'
 
 
+class SynonymsToLookUp(models.Model):
+    """Lists synonyms we haven't looked up yet for a word
+
+    When we look up a word there are also a number of synonyms we look up.
+    However, we end up not looking up the synonyms of those synonyms. So, when
+    we want to fill in the new synonyms' synonyms, we would have to revist the
+    synonym's page. This model contains the synonyms for a page we haven't
+    looked up.
+    """
+    base_word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
+    lookup_word = models.CharField(max_length=50)
+    is_synonym = models.BooleanField()
+    unique_together = ('base_word', 'lookup_word')
+
+    def __str__(self):
+        return f'BaseWord: {self.base_word} Word to lookup: {self.lookup_word}'
+
+
 class Profile(models.Model):
     """Extension of Django-default User, allows us to track active wordlists"""
     user = models.OneToOneField(User, on_delete=models.CASCADE)
