@@ -1,3 +1,52 @@
+"""This module handles scraping dictionary entries and adding them to the db
+
+This module handles visiting a website to look up a word's definition and then
+navigating the HTML to extract the desired information to store in the database.
+
+Main Functions:
+    scrape_word(word, search_synonym=False)
+        word: string of word to lookup
+        search_synonym: boolean indicating whether or not to look up the
+        synonyms listed for a word, if set false this information is stored in
+        a table for a later lookup
+
+        This function is the main function of the module, it handles looking up
+        a word and storing it in the databse. The function will check to make
+        sure that the word already isn't in the database. It returns True if
+        the word entered had a valid entry, returns False if the site didn't
+        match a word.
+
+        Example:
+            python3 manage.py shell
+            from dictionary import merriam_webster_scraper as mws
+            mws.scrape_word('bolster', True)
+
+    load_list_of_words(filename)
+        filename: name of file to lookup stored in dictionary/word_lists/
+
+        Scraped the definition of every word in the file. Each line should be a
+        word to lookup. The default search_synonym for this words is True,
+        meaning that the scraper will visit the entry pages for every
+        synonym and antonym listed on the page. Easy way to fill the database
+        with a lot of entries at once.
+
+        Example:
+            python3 manage.py shell
+            from dictionary import merriam_webster_scraper as mws
+            mws.load_list_of_words('top_gre_words.txt')
+
+    fill_in_synonyms()
+        This function will look at all of the synonyms for the base words whose
+        synonyms we have not added yet. Depending on how many words are in the
+        database, this function could take a while to complete. Fills in
+        incompete entries.
+
+        Example:
+            python3 manage.py shell
+            from dictionary import merriam_webster_scraper as mws
+            mws.fill_in_synonyms()
+"""
+
 from bs4 import BeautifulSoup
 import requests
 import time
@@ -33,7 +82,6 @@ def scrape_word(word, search_synonym=False):
     soup = BeautifulSoup(r.content, 'html5lib')
     _manage_dictionary_entries(soup, word, search_synonym)
     return True
-
 
 
 def load_list_of_words(filename):
@@ -300,7 +348,6 @@ def _clean_pos_text(pos_text):
         return match.group().strip()
 
 
-
 def _compile_alternate_spellings(left_content, word_name, word, base_word_,
                              variant_word_set):
     """Search the page to add all the alternatative spellings of a word
@@ -465,7 +512,7 @@ def _handle_creating_synonyms(word_text, variant_word_set, synonym_flag):
     'settle.' Thus, we would look up 'settlings,' which goes to the 'settling'
     page. When we try to add 'settling' to the database, there will be an error,
     because 'settling' was already added to the variant word set. Thus, we try
-    adding an 's' if the main spelling fails.
+    to remove an 's' if the main spelling fails.
     """
     if synonym_flag == 'synonyms':
         msg = 'synonym'
