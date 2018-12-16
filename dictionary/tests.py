@@ -48,9 +48,7 @@ class BackDefinitionEntryTest(TestCase):
     """Class to test that the scraper successfully extracts info from the
     entry of the word 'back'"""
     def setUp(self):
-        back_html = os.path.join('dictionary', 'html_test_pages', 'back.html')
-        soup = BeautifulSoup(open(back_html), 'html5lib')
-        mws._manage_dictionary_entries(soup, 'back', False)
+        mws.scrape_word('back')
 
     def test_db_created_successfully(self):
         base_words = BaseWord.objects.all()
@@ -139,10 +137,7 @@ class BolsterDefinitionEntryTest(TestCase):
     """Class to test that the scraper successfully extracts info from the
     entry of the word 'bolster'"""
     def setUp(self):
-        bolster_html = os.path.join('dictionary', 'html_test_pages',
-                                    'bolster.html')
-        soup = BeautifulSoup(open(bolster_html, encoding='utf-8'), 'html5lib')
-        mws._manage_dictionary_entries(soup, 'bolster', False)
+        mws.scrape_word('bolster')
 
     def test_db_created_successfully(self):
         base_words = BaseWord.objects.all()
@@ -171,17 +166,8 @@ class CapriciousPrecipitateDefinitionEntryTest(TestCase):
     """Class to test that the scraper successfully extracts info from the
     entry of the word 'capricious' and then 'precipitate'"""
     def setUp(self):
-        precipitate_html = os.path.join('dictionary', 'html_test_pages',
-                                        'precipitate.html')
-        soup = BeautifulSoup(open(precipitate_html, encoding='utf-8'),
-                             'html5lib')
-        mws._manage_dictionary_entries(soup, 'precipitate', False)
-        capricious_html = os.path.join('dictionary', 'html_test_pages',
-                                       'capricious.html')
-        soup = BeautifulSoup(open(capricious_html, encoding='utf-8'),
-                                  'html5lib')
-        mws._manage_dictionary_entries(soup, 'capricious', False)
-
+        mws.scrape_word('precipitate')
+        mws.scrape_word('capricious')
 
     def test_db_created_successfully(self):
         db_base_words = BaseWord.objects.all()
@@ -232,17 +218,8 @@ class OstentatiousAffectedDefinitionEntryTest(TestCase):
     entry of the word 'Ostentatious' and then 'affected'
     """
     def setUp(self):
-        ostentatious_html = os.path.join('dictionary', 'html_test_pages',
-                                        'ostentatious.html')
-        soup = BeautifulSoup(open(ostentatious_html, encoding='utf-8'),
-                             'html5lib')
-        mws._manage_dictionary_entries(soup, 'ostentatious', False)
-        affected_html = os.path.join('dictionary', 'html_test_pages',
-                                       'affected.html')
-        soup = BeautifulSoup(open(affected_html, encoding='utf-8'),
-                                  'html5lib')
-        mws._manage_dictionary_entries(soup, 'affected', False)
-
+        mws.scrape_word('ostentatious')
+        mws.scrape_word('affected')
 
     def test_db_created_successfully(self):
         db_variant_words = VariantWord.objects.values_list('name', flat=True)
@@ -283,12 +260,7 @@ class EndorseDefinitionEntryTest(TestCase):
     entry whenever possible
     """
     def setUp(self):
-        indorse_html = os.path.join('dictionary', 'html_test_pages',
-                                        'indorse.html')
-        soup = BeautifulSoup(open(indorse_html, encoding='utf-8'),
-                             'html5lib')
-        mws._manage_dictionary_entries(soup, 'indorse', False)
-
+        mws.scrape_word('indorse')
 
     def test_db_created_successfully(self):
         db_base_words = BaseWord.objects.all()
@@ -302,8 +274,11 @@ class EndorseDefinitionEntryTest(TestCase):
         db_variant_words = list(VariantWord.objects.all()
                                            .values_list('name', flat=True))
         variant_word_list = [
+                             'endorsable',
                              'endorse',
                              'endorsed',
+                             'endorsee',
+                             'endorser',
                              'endorsing',
                              'indorse',
                              'indorsed',

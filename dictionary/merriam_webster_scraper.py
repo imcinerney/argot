@@ -228,9 +228,9 @@ def _add_base_and_form(entry, i, left_content, variant_word_set,
     """
     word_name = entry.find('div').find(['h1', 'p'], {'class' : 'hword'}) \
                      .getText().lower()
-    p = re.compile('([\w-]*)')
-    match = p.search(word_name)
-    word_name = match.group(0)
+    word_name = _clean_word_name(word_name)
+    if word_name is None:
+        return (None, None)
     base_word_, _ = models.BaseWord.objects.get_or_create(name=word_name,
                         searched_synonym=search_synonym)
     pos_ = _find_pos(entry)
@@ -348,6 +348,26 @@ def _clean_pos_text(pos_text):
         return match.group().strip()
 
 
+def _clean_word_name(word):
+    """Cleans the text for a word name, returns None if no match
+
+    Prevents us from adding entries that are just prefixes of suffixes, e.g.
+    -phobia.
+    """
+    p = re.compile('(^[\w]+[\w-]*[\w]+)')
+    match = p.search(word)
+    if match is None:
+        #Make sure we aren't excluding one letter words
+        p = re.compile('(^[\w]$)')
+        match = p.search(word)
+        if match is None:
+            return None
+        else:
+            return match.group(0)
+    else:
+        return match.group(0)
+
+
 def _compile_alternate_spellings(left_content, word_name, word, base_word_,
                              variant_word_set):
     """Search the page to add all the alternatative spellings of a word
@@ -458,8 +478,9 @@ def _create_synonyms(left_content, base_word_, synonym_list):
         for word in word_list:
             variant_word_set = models.VariantWord.objects.values_list('name',
                                                                       flat=True)
-            m = p.match(word.getText().lower())
-            word_text = m.group(1)
+            word_text = _clean_word_name(word.getText().lower())
+            if word_text == base_word_.name:
+                continue
             m = p.match(pos_synonym_flag)
             synonym_flag = m.group(1)
             if word_text not in variant_word_set:
@@ -480,11 +501,12 @@ def _create_synonyms(left_content, base_word_, synonym_list):
 
 def _create_synonym_lookups(left_content, base_word_, synonym_list):
     """Stows away synonyms to lookup when we don't have to look them up now"""
-    p = re.compile('(^[\w\-]*)', re.UNICODE)
+    p = re.compile('(^[\w\-]*)')
     for (pos_synonym_flag, word_list) in synonym_list:
         for word in word_list:
-            m = p.match(word.getText().lower())
-            word_text = m.group(1)
+            word_text = _clean_word_name(word.getText().lower())
+            if word_text == base_word_.name:
+                continue
             m = p.match(pos_synonym_flag)
             synonym_flag = m.group(1)
             is_synonym = synonym_flag == 'synonyms'

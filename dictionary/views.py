@@ -14,7 +14,7 @@ from django.db.models import F
 def detail(request, base_word_id):
     """Displays the definition page for a baseword"""
     word = get_object_or_404(models.BaseWord, pk=base_word_id)
-    if word.searched_synonym == False:
+    if not word.searched_synonym:
         mws.scrape_word(word.name, True)
     return render(request, 'dictionary/detail.html', {'word': word})
 
@@ -140,7 +140,7 @@ def change_privacy(request, word_list_id):
         return HttpResponseRedirect(reverse('dictionary:view_word_list',
                                             args=(word_list_id,)))
     else:
-        return HttpResponse('ok')
+        return HttpResponseRedirect(reverse('dictionary:view_user_word_lists'))
 
 
 def _return_synonym_dict(entry_list):
@@ -188,7 +188,11 @@ def play_game(request, word_list_id):
     else:
         msg = ''
     entry_list = word_list.entries_list()
+    if len(entry_list) < 5:
+        return HttpResponse('You must have at least five entries to practice')
     synonym_dict = _return_synonym_dict(entry_list)
+    if len(synonym_dict) == 0:
+        return HttpResponse('None of your words have synonyms to test')
     #some entries don't have synonyms
     entry_list = list(synonym_dict.keys())
     all_synonyms = _return_all_synonyms()
@@ -200,7 +204,11 @@ def play_game(request, word_list_id):
                                    .values_list('synonym_name', flat=True)
                               )
     choice_synonym = random.choice(choice_synonyms).synonym.name
-    non_choice_answers = random.sample(non_choice_synonyms, k=3)
+    try:
+        non_choice_answers = random.sample(non_choice_synonyms, k=3)
+    except ValueError:
+        raise ValueError('You must add more entries to the database before'
+                         ' starting a game')
     choices = [choice_synonym] + non_choice_answers
     random.shuffle(choices)
     return render(request, 'dictionary/play_game.html',
