@@ -13,8 +13,8 @@ Currently working towards something resembling an alpha build. The website itsel
 - [Django](https://www.djangoproject.com/)
 
 ## Installation
-argot uses python3 to run. After you download python3, you'll need to create a virtual environment and install the required packages.
-Here are instructions on how to setup a virtual environment on the major operating systems. Run the following commands in the root directory of the repository.
+argot uses [python3](https://www.python.org/downloads/) to run. After you download python3, you'll need to create a virtual environment and install the required packages.
+Here are instructions on how to setup a virtual environment on the major operating systems. Run the following commands in the root directory of the repository:
 
 Mac OS/Linux
 --------------
@@ -33,6 +33,7 @@ pip install -r requirements.txt
 ```
 
 Currently, there is no database stored/tracked in this repository. To create one, type ```python manage.py migrate``` (or ```python3 manage.py migrate``` if you have Mac). This creates all the tables used to store and process the data for the website.  
+
 To visit the website, type ```python manage.py runserver``` and then type in http://127.0.0.1:8000 in your browser to see the website. Initially, when you look up words, it will be quite slow, because the database does not have any entries. However, once you look up a word, you won't need to again.  
 
 If you want to load the database with a number of popular words, you can type in the following commands from the root directory:  
