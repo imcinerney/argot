@@ -354,7 +354,7 @@ def _clean_word_name(word):
     Prevents us from adding entries that are just prefixes of suffixes, e.g.
     -phobia.
     """
-    p = re.compile('(^[\w]+[\w-]*[\w]+$)')
+    p = re.compile('(^[\w]+[\w-]*[\w]+)')
     match = p.search(word)
     if match is None:
         #Make sure we aren't excluding one letter words
