@@ -32,19 +32,17 @@ python -m virtualenv env
 pip install -r requirements.txt  
 ```
 
-Currently, there is no database stored/tracked in this repository. To create one, type ```python manage.py migrate``` (or ```python3 manage.py migrate``` if you have Mac). This creates all the tables used to store and process the data for the website.  
+Currently, there is no database stored/tracked in this repository. To create one, type ```python manage.py migrate``` (or ```python3 manage.py migrate``` if you have Mac). This creates all the tables used to store and process the data for the website. It also loads the database with an initial set of data of 53 words.  
 
 To visit the website, type ```python manage.py runserver``` and then type in http://127.0.0.1:8000 in your browser to see the website. Initially, when you look up words, it will be quite slow, because the database does not have any entries. However, once you look up a word, you won't need to again.  
 
-If you want to load the database with a number of popular words, you can type in the following commands from the root directory:  
+To further fill the database with more entries, type in the following commands:  
 ```
 python manage.py shell
 >>> from dictionary import merriam_webster_scraper as mws
->>> mws.load_list_of_words('top_gre_words.txt')
-```  
-
-It will take around an hour to download all of the words. 
-
+>>> mws.fill_in_synonyms()
+```
+This will lookup and add all synonyms and antonyms listed for each word in the database whose synonyms/antonyms we haven't looked up already. In the initial data, none of the synonyms or antonyms have been created for any of the words, so this will look up all of the synonyms and antonyms of the words in the database.  
 
 ## Tests
 All tests reside in the dictionay/test.py file. To run them, type ```python manage.py test``` into the root directory.
