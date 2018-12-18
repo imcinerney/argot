@@ -311,7 +311,7 @@ def _find_pos(entry):
 
 def _clean_example_text(example_text):
     """Returns just a sentence"""
-    p = re.compile('([A-z][A-z ,-\\\/()]*)')
+    p = re.compile('([A-z][A-z ,-\\\/()\']*)')
     match = p.search(example_text)
     if match is None:
         raise (ValueError(f'Something wrong happened when extracting the part '
