@@ -125,9 +125,10 @@ def _already_entered(word, search_synonym):
                     else:
                         print(f'Looking up the antonym: {synonym.lookup_word}')
                     valid_word = scrape_word(synonym.lookup_word)
+                    synonym_word = synonym.lookup_word
                     if valid_word:
                         synonym_vw = models.VariantWord.objects \
-                                                       .get(name=word)
+                                                       .get(name=synonym_word)
                         if synonym.is_synonym:
                             _ = models.Synonym.objects \
                                       .get_or_create(base_word=base_word_,
