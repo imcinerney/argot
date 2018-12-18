@@ -125,9 +125,10 @@ def _already_entered(word, search_synonym):
                     else:
                         print(f'Looking up the antonym: {synonym.lookup_word}')
                     valid_word = scrape_word(synonym.lookup_word)
+                    synonym_word = synonym.lookup_word
                     if valid_word:
                         synonym_vw = models.VariantWord.objects \
-                                                       .get(name=word)
+                                                       .get(name=synonym_word)
                         if synonym.is_synonym:
                             _ = models.Synonym.objects \
                                       .get_or_create(base_word=base_word_,
@@ -311,7 +312,7 @@ def _find_pos(entry):
 
 def _clean_example_text(example_text):
     """Returns just a sentence"""
-    p = re.compile('([A-z][A-z ,-\\\/()]*)')
+    p = re.compile('([A-z][A-z ,-\\\/()\']*)')
     match = p.search(example_text)
     if match is None:
         raise (ValueError(f'Something wrong happened when extracting the part '
