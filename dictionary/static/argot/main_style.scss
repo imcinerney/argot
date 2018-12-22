@@ -3,6 +3,8 @@ $colors: (
   primary: #F5F5F5,
   accent: #FFF6BB,
   dark-green: #00b300,
+  link-color: #30306d,
+  visited_link_color: #803030,
   white: #FFFFFF
 );
 
@@ -32,7 +34,6 @@ body {
 
 div#login_status {
   float: right;
-  // margin-right: 100px;
   padding-right: 25px;
   text-align: left;
   font-size: 20px;
@@ -58,18 +59,22 @@ button {
 input {
   font-family: 'Montserrat';
   background-color: map-get($colors, primary);
-  font-size: 1em;
-  border-radius: 2px;
+  font-size: 15px;
+  // border-radius: 2px;
+  border: none;
+}
+
+input#login {
+  font-size: 20px;
 }
 
 input#search {
-  background-color: map-get($colors, white) !important;
+  background-color: map-get($colors, white);
 }
 
-button:focus {outline:0;}
-
-.btn:focus {outline:0;}
-
+form {
+  margin-block-end: 0em;
+}
 
 .btn:hover {
   cursor: pointer;
@@ -77,9 +82,21 @@ button:focus {outline:0;}
   background-color: #F89900;
 }
 
+a {
+  text-decoration: none;
+  color: map-get($colors, link-color);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:visited {
+  color: map-get($colors, visited_link_color)
+}
 
 p#introduction {
-  font-family: 'Georgia';
+    font-family: 'Montserrat';
     text-align: center;
     background-color: map-get($colors, primary);
     border-radius: 2px;
@@ -97,5 +114,11 @@ p#introduction {
   width: 375px;
   height: 50px;
   float: right;
+  border-radius: 2px;
   background-color: map-get($colors, primary);
+}
+
+
+form#login_form {
+  font-size: 20px;
 }

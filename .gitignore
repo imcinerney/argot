@@ -15,3 +15,4 @@ lib64
 dictionary/sql_queries
 env
 .on-save.json
+main_style.css.map

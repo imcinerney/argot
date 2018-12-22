@@ -6,9 +6,20 @@
 
 <div class='header' align='center'>
   <div class='welcome_msg'>Welcome to argot!</div>
-  <div id='login_status'>Username: {{user.username}}
-    <a href="/user_logout"><button class='btn'>Logout</button></a>
+  {% if user.is_authenticated %}
+    <div id='login_status'>Username: {{user.username}}
+      <a href="/user_logout"><button class='btn'>Logout</button></a>
+    </div>
+  {% else %}
+  <div id='login_status'>
+      <form id='login_form' method='POST' action="{% url 'user_login' %}">
+        {% csrf_token %}
+        Username: {{ form.username }}<input type="text" name='username'/>
+        Password: {{ form.password }}<input type="password" name="password"/>
+        <input class='btn' id='login' type="submit" value='Login'/>
+      </form>
   </div>
+  {% endif %}
 </div>
 <div class='content'>
 <p id='introduction' class='about' align='center'>Have you ever read a book with a lot of words you don't know the meaning of?
@@ -47,18 +58,17 @@
         </div>
      {% endif %}
    </div>
-   <p>&nbsp;</p>
    {% if not user.is_authenticated %}
-     <form method='POST' action="{% url 'user_login' %}">
-       {% csrf_token %}
+     <div class='side_left'>
+       <form action='' method='GET'>
+       {{form.search_term}} Look Up A Word: <input type="text" id="search"  name="search_term" placeholder="Enter a word..."/>
+       <input type="submit" class='btn' value='Search'/>
+       </form>
+     </div>
+     <p>&nbsp;</p>
+     <p>&nbsp;</p>
 
-       Username: {{ form.username }}<input type="text" name='username'>
-       <p></p>
-       Password: {{ form.password }}<input type="password" name="password" >
-       <input type="submit" value='Login'/>
-      </form>
-      <p>&nbsp;</p>
-      <p>Haven't made an account yet? Sign up <a href="/register"> here</a></p>
+      <p>Haven't made an account yet? <a href="/register"><button class='btn'>Register</button></a></p>
  {% endif %}
 
 </div>

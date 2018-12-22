@@ -47,20 +47,20 @@ button {
 input {
   font-family: "Montserrat";
   background-color: #F5F5F5;
-  font-size: 1em;
-  border-radius: 2px;
+  font-size: 15px;
+  border: none;
+}
+
+input#login {
+  font-size: 20px;
 }
 
 input#search {
-  background-color: #FFFFFF !important;
+  background-color: #FFFFFF;
 }
 
-button:focus {
-  outline: 0;
-}
-
-.btn:focus {
-  outline: 0;
+form {
+  margin-block-end: 0em;
 }
 
 .btn:hover {
@@ -69,8 +69,21 @@ button:focus {
   background-color: #F89900;
 }
 
+a {
+  text-decoration: none;
+  color: #30306d;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:visited {
+  color: #803030;
+}
+
 p#introduction {
-  font-family: "Georgia";
+  font-family: "Montserrat";
   text-align: center;
   background-color: #F5F5F5;
   border-radius: 2px;
@@ -88,7 +101,12 @@ p#introduction {
   width: 375px;
   height: 50px;
   float: right;
+  border-radius: 2px;
   background-color: #F5F5F5;
+}
+
+form#login_form {
+  font-size: 20px;
 }
 
 /*# sourceMappingURL=main_style.css.map */
