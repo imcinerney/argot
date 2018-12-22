@@ -1,0 +1,94 @@
+body {
+  margin: 0px;
+}
+
+.header {
+  border: 1px solid #ccc;
+  align-items: center;
+  position: fixed;
+  width: 100%;
+  top: 0px;
+  background: #F5F5F5;
+  text-align: center;
+  padding: 15px;
+}
+
+.welcome_msg {
+  float: left;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0px;
+  font-size: 20px;
+}
+
+div#login_status {
+  float: right;
+  padding-right: 25px;
+  text-align: left;
+  font-size: 20px;
+}
+
+.content {
+  margin: 70px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50em;
+  outline: 0px;
+}
+
+button {
+  font-family: "Montserrat";
+  background-color: #F5F5F5;
+  font-size: 1em;
+  border-radius: 2px;
+  border: none;
+}
+
+input {
+  font-family: "Montserrat";
+  background-color: #F5F5F5;
+  font-size: 1em;
+  border-radius: 2px;
+}
+
+input#search {
+  background-color: #FFFFFF !important;
+}
+
+button:focus {
+  outline: 0;
+}
+
+.btn:focus {
+  outline: 0;
+}
+
+.btn:hover {
+  cursor: pointer;
+  shadow: 2px 2px;
+  background-color: #F89900;
+}
+
+p#introduction {
+  font-family: "Georgia";
+  text-align: center;
+  background-color: #F5F5F5;
+  border-radius: 2px;
+}
+
+.side_left {
+  width: 375px;
+  height: 50px;
+  padding-right: 1px;
+  float: left;
+  background-color: #F5F5F5;
+}
+
+.side_right {
+  width: 375px;
+  height: 50px;
+  float: right;
+  background-color: #F5F5F5;
+}
+
+/*# sourceMappingURL=main_style.css.map */
