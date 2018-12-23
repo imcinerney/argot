@@ -2,31 +2,32 @@
 
 {% block content %}
 
-<p>Here is the word list</p>
-{{ word_list.list_name }}
-{% if request.user == word_list.user %}
-<a href='/dictionary/word_list/{{word_list.id}}/change_name'><button>Change Name</button></a>
+List Name: {{ word_list.list_name }}
 <p></p>
-<p>Currently your list is {% if word_list.is_public %} public. That means
-that everyone can view your list. {% else %} private. That means only you can
-view your list. {% endif %} <a href='/dictionary/word_list/{{word_list.id}}/change_privacy'><button>Change</button></a>
-</p>
-{% endif %}
-<p>List of words:</p>
+List Owner: {{word_list.user.username}}
+<p>Words:</p>
+<ul>
 {% for word in word_list.wordlistentry_set.all %}
   <li><a href="/dictionary/{{ word.word.id }}/">{{ word.word }}</a></li>
 {% endfor %}
+</ul>
 <p></p>
 {% if request.user == word_list.user %}
 <form method='POST' action="{% url 'dictionary:add_words_to_word_list' word_list.id %}">
   {% csrf_token %}
-  {{ form.search_term }}Add word to list: <input type="text" name='search_term'>
-  <input type="submit" value='Add Word'>
+  {{ form.search_term }}Add word to your list: <input type="text" name='search_term'>
+  <input type="submit" class='btn' value='Add Word'>
  </form>
- <a href="/dictionary/word_list/view_user_word_lists"><button>View All Your Word Lists</button></a>
  {% endif %}
 <p></p>
-<a href='/dictionary/word_list/{{word_list.id}}/play_game'><button>Practice This List</button></a>
+<a href='/dictionary/word_list/{{word_list.id}}/play_game'><button class='side_left btn'>Practice This List</button></a>
 <p></p>
-<a href='/'><button>Home</button></a>
+{% if request.user == word_list.user %}
+<a href='/dictionary/word_list/{{word_list.id}}/edit_list'><button class='side_right btn'>Edit List</button></a>
+{% endif %}
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<a href='/'><button class='btn side_left'>Home</button></a>
+<p></p>
+<a href='/'><button class='btn side_right'>View Your Word Lists</button></a>
 {% endblock %}

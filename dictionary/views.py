@@ -143,6 +143,11 @@ def change_privacy(request, word_list_id):
         return HttpResponseRedirect(reverse('dictionary:view_user_word_lists'))
 
 
+def edit_list(request, word_list_id):
+    """Page to allow user to change word list name, privacy, or delete words"""
+    return HttpResponse('pass')
+
+
 def _return_synonym_dict(entry_list):
     """Handles generating the synonym_dict for the game"""
     synonym_dict = {}
