@@ -22,4 +22,6 @@ urlpatterns = [
          name='create_word_list'),
     path('word_list/<int:word_list_id>/edit_list', views.edit_list,
          name='edit_list'),
+    path('word_list/<int:word_list_id>/remove_words', views.remove_words,
+         name='remove_words'),
 ]

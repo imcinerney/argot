@@ -1,0 +1,34 @@
+{% extends 'argot/default_header.html' %}
+
+{% block content %}
+List Name: {{ word_list.list_name }}
+<p></p>
+<form method='POST' action='/dictionary/word_list/{{word_list.id}}/change_name'>
+  {% csrf_token %}
+  <div>New List Name: {{ form.list_name }}
+    <input type="text" name='list_name'>
+    <input class='btn' type="submit" value='Change Name'/>
+  </div>
+</form>
+<p></p>
+<div>
+  Privacy: {% if word_list.is_public %} Public {% else %} Private {% endif %}
+  <a href='/dictionary/word_list/{{word_list.id}}/change_privacy'><button class='btn'>Change</button></a>
+</div>
+<p></p>
+<div>
+  Select words to remove from list
+  <form method='Post' action='/dictionary/word_list/{{word_list.id}}/remove_words'>
+    {% csrf_token %}
+    <ul>
+      {% for word in word_list.wordlistentry_set.all %}
+      <li><input name='words_to_delete' value='{{word.id}}' type="checkbox">{{word.word}}</li>
+      {% endfor %}
+    </ul>
+    <input class='btn' type='submit'></input>
+  </form>
+</div>
+<p></p>
+<a href='/'><button class='btn side_left'>Home</button></a>
+<a href='/dictionary/word_list/view_user_word_lists'><button class='btn side_right'>View Your Word Lists</button></a>
+{% endblock %}

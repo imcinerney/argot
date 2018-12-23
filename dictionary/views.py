@@ -119,14 +119,14 @@ def change_word_list_name(request, word_list_id):
             if list_owner == request.user and form.is_valid():
                 word_list.list_name = form.cleaned_data['list_name']
                 word_list.save()
-                return HttpResponseRedirect(reverse('dictionary:view_word_list',
+                return HttpResponseRedirect(reverse('dictionary:edit_list',
                                                     args=(word_list_id,)))
             else:
                 return HttpResponseRedirect('/')
         else:
             return render(request, 'dictionary/change_word_list_name.html',
                           {'word_list': word_list})
-    return render(request, 'dictionary/change_word_list_name.html')
+    return HttpResponseRedirect('/')
 
 
 def change_privacy(request, word_list_id):
@@ -137,7 +137,7 @@ def change_privacy(request, word_list_id):
         privacy = word_list.is_public
         word_list.is_public = not privacy
         word_list.save()
-        return HttpResponseRedirect(reverse('dictionary:view_word_list',
+        return HttpResponseRedirect(reverse('dictionary:edit_list',
                                             args=(word_list_id,)))
     else:
         return HttpResponseRedirect(reverse('dictionary:view_user_word_lists'))
@@ -145,7 +145,31 @@ def change_privacy(request, word_list_id):
 
 def edit_list(request, word_list_id):
     """Page to allow user to change word list name, privacy, or delete words"""
-    return HttpResponse('pass')
+    word_list = get_object_or_404(models.WordList, pk=word_list_id)
+    list_owner = word_list.user
+    if request.user == list_owner:
+        return render(request, 'dictionary/edit_word_list.html',
+                      {'word_list': word_list})
+    else:
+        return HttpResponseRedirect(reverse('dictionary:view_word_list',
+                                            args=(word_list_id,)))
+
+
+def remove_words(request, word_list_id):
+    """Handles removing words from word list"""
+    word_list = get_object_or_404(models.WordList, pk=word_list_id)
+    list_owner = word_list.user
+    if request.user == list_owner and request.method == 'POST':
+        words_to_delete = request.POST['words_to_delete']
+        for word in words_to_delete:
+            word_entry = models.WordListEntry.objects.all() \
+                               .get(id=int(word))
+            word_entry.delete()
+        return HttpResponseRedirect(reverse('dictionary:edit_list',
+                                            args=(word_list_id,)))
+    else:
+        return HttpResponseRedirect(reverse('dictionary:view_word_list',
+                                            args=(word_list_id,)))
 
 
 def _return_synonym_dict(entry_list):

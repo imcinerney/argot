@@ -29,5 +29,7 @@ List Owner: {{word_list.user.username}}
 <p>&nbsp;</p>
 <a href='/'><button class='btn side_left'>Home</button></a>
 <p></p>
-<a href='/'><button class='btn side_right'>View Your Word Lists</button></a>
+{% if request.user == word_list.user %}
+<a href='/dictionary/word_list/view_user_word_lists'><button class='btn side_right'>View Your Word Lists</button></a>
+{% endif %}
 {% endblock %}
