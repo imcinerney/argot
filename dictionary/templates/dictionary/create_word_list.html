@@ -1,3 +1,8 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css"
+      href="{% static 'argot/main_style.css' %}">
+
 <p>Enter a name for your list to be called</p>
 <form method='POST' action="{% url 'dictionary:create_word_list' %}">
   {% csrf_token %}

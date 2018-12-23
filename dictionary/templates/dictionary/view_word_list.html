@@ -1,3 +1,8 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css"
+      href="{% static 'argot/main_style.css' %}">
+
 <p>Here is the word list</p>
 {{ word_list.list_name }}
 {% if request.user == word_list.user %}

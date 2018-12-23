@@ -1,3 +1,8 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css"
+      href="{% static 'argot/main_style.css' %}">
+
 <h1>Welcome to the vocab game. The word list is {{word_list.list_name}}</h1>
 <h1>{{msg}}</h1>
 <p>Select the word that most closely describes {{ test_word }}</p>
