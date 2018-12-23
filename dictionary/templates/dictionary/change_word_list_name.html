@@ -1,7 +1,6 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css"
-      href="{% static 'argot/main_style.css' %}">
+{% block content %}
 
 <p>Change the name of the word list from {{ word_list.list_name }} to</p>
 <form method='POST' action='/dictionary/word_list/{{word_list.id}}/change_name'>
@@ -11,3 +10,4 @@
     <input type="submit" value='Change Name'/>
   </div>
 </form>
+{% endblock %}

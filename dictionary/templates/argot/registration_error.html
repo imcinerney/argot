@@ -1,7 +1,6 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css"
-      href="{% static 'argot/main_style.css' %}">
+{% block content %}
 
 <h1>Looks like something went wrong when trying to register</h1>
 {% if form.errors %}
@@ -23,3 +22,4 @@
 {% endif %}
 
 <a href='/register'>Back to registration</a>
+{% endblock %}

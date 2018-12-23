@@ -1,27 +1,6 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css"
-      href="{% static 'argot/main_style.css' %}">
-
-
-<div class='header' align='center'>
-  <div class='welcome_msg'>Welcome to argot!</div>
-  {% if user.is_authenticated %}
-    <div id='login_status'>Username: {{user.username}}
-      <a href="/user_logout"><button class='btn'>Logout</button></a>
-    </div>
-  {% else %}
-  <div id='login_status'>
-      <form id='login_form' method='POST' action="{% url 'user_login' %}">
-        {% csrf_token %}
-        Username: {{ form.username }}<input type="text" name='username'/>
-        Password: {{ form.password }}<input type="password" name="password"/>
-        <input class='btn' id='login' type="submit" value='Login'/>
-      </form>
-  </div>
-  {% endif %}
-</div>
-<div class='content'>
+{% block content %}
 <p id='introduction' class='about' align='center'>Have you ever read a book with a lot of words you don't know the meaning of?
    You look up the obsecure word and minutes later you have already forgotten
    what the word meant. argot allows you to keep track of what word you looked
@@ -73,5 +52,4 @@
       <p>Haven't made an account yet? <a href="/register"><button class='btn'>Register</button></a></p>
  {% endif %}
 
-</div>
-<p></P>
+{% endblock %}

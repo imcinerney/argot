@@ -1,7 +1,6 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css"
-      href="{% static 'argot/main_style.css' %}">
+{% block content %}
 
 <h1> Sign up to keep track of word lists you create </h1>
 <p>Usernames must be between 4 and 30 characters.
@@ -19,3 +18,4 @@
   Confirm Password:  {{ form.password2 }}<input type="password" name="password2" >
   <input type="submit" value='register'/>
  </form>
+ {% endblock %}

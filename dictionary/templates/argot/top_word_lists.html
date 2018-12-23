@@ -1,7 +1,6 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css"
-      href="{% static 'argot/main_style.css' %}">
+{% block content %}
 
 <table style="table-layout: fixed; width: 40%">
   <th>Word List Name</th>
@@ -20,3 +19,5 @@
 </table>
 <p></p>
 <a href='/'><button>Home</button></a>
+
+{% endblock %}

@@ -1,7 +1,6 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css"
-      href="{% static 'argot/main_style.css' %}">
+{% block content %}
 
 <h1>Welcome to the vocab game. The word list is {{word_list.list_name}}</h1>
 <h1>{{msg}}</h1>
@@ -19,3 +18,4 @@
 <input type="submit" value='Submit'/>
 </form>
 <a href='/'><button>Home</button></a>
+{% endblock %}

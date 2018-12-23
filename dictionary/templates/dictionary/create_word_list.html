@@ -1,7 +1,6 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css"
-      href="{% static 'argot/main_style.css' %}">
+{% block content %}
 
 <p>Enter a name for your list to be called</p>
 <form method='POST' action="{% url 'dictionary:create_word_list' %}">
@@ -10,3 +9,4 @@
   <div>Make List Public: {{form.is_public}}<input type="checkbox" name="is_public"></div>
   <input type="submit" value='Create List'/>
  </form>
+ {% endblock %}

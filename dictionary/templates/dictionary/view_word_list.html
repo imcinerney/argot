@@ -1,7 +1,6 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css"
-      href="{% static 'argot/main_style.css' %}">
+{% block content %}
 
 <p>Here is the word list</p>
 {{ word_list.list_name }}
@@ -30,3 +29,4 @@ view your list. {% endif %} <a href='/dictionary/word_list/{{word_list.id}}/chan
 <a href='/dictionary/word_list/{{word_list.id}}/play_game'><button>Practice This List</button></a>
 <p></p>
 <a href='/'><button>Home</button></a>
+{% endblock %}

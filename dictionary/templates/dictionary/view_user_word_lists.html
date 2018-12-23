@@ -1,7 +1,6 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css"
-      href="{% static 'argot/main_style.css' %}">
+{% block content %}
 
 <h1>Select Word List to track</h1>
 <table>
@@ -20,3 +19,4 @@
 </table>
 <a href='/dictionary/word_list/create_word_list'><button>Create New Word List</button></a>
 <a href='/'><button>Home</button></a>
+{% endblock %}

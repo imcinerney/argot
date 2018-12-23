@@ -1,12 +1,6 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css"
-      href="{% static 'argot/main_style.css' %}">
-
-{% load static %}
-
-<link rel="stylesheet" type="text/css" href="{% static 'dictionary/style.css' %}">
-
+{% block content %}
 
 <h1>{{ word }}</h1>
 <ul>
@@ -32,3 +26,4 @@
   <p></p>
 {% endif %}
 <a href='/'><button>Back to Home</button></a>
+{% endblock %}
