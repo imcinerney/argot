@@ -203,8 +203,8 @@ class UserAccuracy(models.Model):
     """Class to keep track a user's accuracy of identifying words"""
     base_word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    total_guesses = models.PositiveIntegerField()
-    correct_guesses = models.PositiveIntegerField()
+    total_guesses = models.PositiveIntegerField(default=0)
+    correct_guesses = models.PositiveIntegerField(default=0)
     unique_together = ('base_word', 'user')
 
     def __str__(self):
