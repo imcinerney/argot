@@ -16,6 +16,15 @@ class BaseWord(models.Model):
     total_guesses = models.PositiveIntegerField(default=0)
     correct_guesses = models.PositiveIntegerField(default=0)
 
+    @property
+    def accuracy(self):
+        """Returns formatted string to nearest hundreth"""
+        if self.total_guesses == 0:
+            return '--'
+        else:
+            accuracy = (self.correct_guesses / self.total_guesses) * 100
+            return '{0:.1f}%'.format(accuracy)
+
     def return_pos_list(self):
         """Returns the list of parts of speech associated for a word"""
         form_words = self.formword_set
@@ -207,8 +216,16 @@ class UserAccuracy(models.Model):
     correct_guesses = models.PositiveIntegerField(default=0)
     unique_together = ('base_word', 'user')
 
+    @property
+    def accuracy(self):
+        """Returns formatted string to nearest hundreth"""
+        if self.total_guesses == 0:
+            return '--'
+        else:
+            accuracy = (self.correct_guesses / self.total_guesses) * 100
+            return '{0:.1f}%'.format(accuracy)
+
     def __str__(self):
-        accuracy = (self.correct_guesses / self.total_guesses) * 100
         return (f'Username: {self.user.username} '
                 f'BaseWord: {self.base_word.name}\n'
-                f'Accuracy: {accuracy}%')
+                f'Accuracy: {self.accuracy}')
