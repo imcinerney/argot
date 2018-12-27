@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         call_command('loaddata', fixture_file)
 
     dependencies = [
-        ('dictionary', '0015_synonymstolookup'),
+        ('dictionary', '0017_useraccuracy'),
     ]
 
     operations = [

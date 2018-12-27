@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dictionary', '0016_load_static_data'),
+        ('dictionary', '0015_synonymstolookup'),
     ]
 
     operations = [

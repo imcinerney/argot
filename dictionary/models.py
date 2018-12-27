@@ -197,3 +197,18 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     """We want to save a Pofile everytime we save a User"""
     instance.profile.save()
+
+
+class UserAccuracy(models.Model):
+    """Class to keep track a user's accuracy of identifying words"""
+    base_word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    total_guesses = models.PositiveIntegerField()
+    correct_guesses = models.PositiveIntegerField()
+    unique_together = ('base_word', 'user')
+
+    def __str__(self):
+        accuracy = (self.correct_guesses / self.total_guesses) * 100
+        return (f'Username: {self.user.username} '
+                f'BaseWord: {self.base_word.name}\n'
+                f'Accuracy: {accuracy}%')
