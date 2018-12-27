@@ -179,10 +179,21 @@ def play_game(request, word_list_id):
         if form.is_valid():
             choice = form.cleaned_data['choice']
             correct_choice = form.cleaned_data['correct_choice']
+            test_word = form.cleaned_data['base_word']
+            base_word = models.BaseWord.objects.get(name=test_word)
+            accuracy, _  = models.UserAccuracy.objects \
+                                 .get_or_create(base_word=base_word,
+                                                user=request.user)
+            base_word.total_guesses += 1
+            accuracy.total_guesses += 1
             if choice == correct_choice:
                 msg = 'Nice! Correct synonym'
+                base_word.correct_guesses += 1
+                accuracy.correct_guesses += 1
             else:
                 msg = f'Wrong answer. The correct synonym is: {correct_choice}'
+            base_word.save()
+            accuracy.save()
         else:
             msg = 'You have to select an answer!'
     else:

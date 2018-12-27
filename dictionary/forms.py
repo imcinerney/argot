@@ -34,6 +34,7 @@ class VocabTestAnswer(forms.Form):
     """Form to see if user was correct in identifying a synonym"""
     correct_choice = forms.CharField(max_length=50)
     choice = forms.CharField(max_length=50)
+    base_word = forms.CharField(max_length=50)
 
     def clean(self):
         cleaned_data = super().clean()
