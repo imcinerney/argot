@@ -13,6 +13,17 @@ class BaseWord(models.Model):
     """
     name = models.CharField(max_length=50, unique=True)
     searched_synonym = models.BooleanField(default=False)
+    total_guesses = models.PositiveIntegerField(default=0)
+    correct_guesses = models.PositiveIntegerField(default=0)
+
+    @property
+    def accuracy(self):
+        """Returns formatted string to nearest hundreth"""
+        if self.total_guesses == 0:
+            return '--'
+        else:
+            accuracy = (self.correct_guesses / self.total_guesses) * 100
+            return '{0:.1f}%'.format(accuracy)
 
     def return_pos_list(self):
         """Returns the list of parts of speech associated for a word"""
@@ -195,3 +206,26 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     """We want to save a Pofile everytime we save a User"""
     instance.profile.save()
+
+
+class UserAccuracy(models.Model):
+    """Class to keep track a user's accuracy of identifying words"""
+    base_word = models.ForeignKey(BaseWord, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    total_guesses = models.PositiveIntegerField(default=0)
+    correct_guesses = models.PositiveIntegerField(default=0)
+    unique_together = ('base_word', 'user')
+
+    @property
+    def accuracy(self):
+        """Returns formatted string to nearest hundreth"""
+        if self.total_guesses == 0:
+            return '--'
+        else:
+            accuracy = (self.correct_guesses / self.total_guesses) * 100
+            return '{0:.1f}%'.format(accuracy)
+
+    def __str__(self):
+        return (f'Username: {self.user.username} '
+                f'BaseWord: {self.base_word.name}\n'
+                f'Accuracy: {self.accuracy}')
