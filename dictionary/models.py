@@ -13,6 +13,8 @@ class BaseWord(models.Model):
     """
     name = models.CharField(max_length=50, unique=True)
     searched_synonym = models.BooleanField(default=False)
+    total_guesses = models.PositiveIntegerField(default=0)
+    correct_guesses = models.PositiveIntegerField(default=0)
 
     def return_pos_list(self):
         """Returns the list of parts of speech associated for a word"""
