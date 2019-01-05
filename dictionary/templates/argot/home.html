@@ -11,7 +11,7 @@
    <div class='word_list_info'>
      {% if user.is_authenticated %}
           {% if user.profile.active_word_list == None %}
-            No active list
+            <a href='dictionary/word_list/create_word_list'><button class='btn side_left'>No Active Word List</button></a>
           {% else %}
         <div class='side_left'>
           Current word list:
