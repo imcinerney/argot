@@ -21,7 +21,7 @@ class PasswordForm(forms.Form):
         if re.search('[0-9]', password) is None:
             raise ValidationError('Passwords must contain at least one number')
         if re.search('[!@#$%^&*]', password) is None:
-            raise ValidationError('Passwords must contain at least on of the '
+            raise ValidationError('Passwords must contain at least one of the '
                                   'following characters: !@#$%^&*')
         return password
 

@@ -3,20 +3,13 @@
 {% block content %}
 
 <h1>Looks like something went wrong when trying to register</h1>
-{% if form.errors %}
+{% if errors %}
   <ul>
 
-  {% for field in form %}
-      {% for error in field.errors %}
-          <div class="alert alert-danger">
-              <li>{{ error|escape }}</li>
-          </div>
-      {% endfor %}
-  {% endfor %}
-  {% for error in form.non_field_errors %}
+  {% for key, value in errors.items %}
       <div class="alert alert-danger">
-          <li>{{ error|escape }}</li>
-      </div>
+          <li>{{ value }}</li>
+        </div>
   {% endfor %}
   </ul>
 {% endif %}
