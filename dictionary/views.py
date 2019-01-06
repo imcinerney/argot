@@ -160,11 +160,13 @@ def remove_words(request, word_list_id):
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
     list_owner = word_list.user
     if request.user == list_owner and request.method == 'POST':
-        words_to_delete = request.POST['words_to_delete']
-        for word in words_to_delete:
-            word_entry = models.WordListEntry.objects.all() \
-                               .get(id=int(word))
-            word_entry.delete()
+        for word_entry in word_list.wordlistentry_set.all():
+            lookup_string = 'words_to_delete' + str(word_entry.id)
+            try:
+                delete = request.POST[lookup_string]
+                word_entry.delete()
+            except KeyError:
+                pass
         return HttpResponseRedirect(reverse('dictionary:edit_list',
                                             args=(word_list_id,)))
     else:
