@@ -2,11 +2,20 @@
 
 {% block content %}
 
-<p>Enter a name for your list to be called</p>
+<h1>Create a name for your word list</h1>
 <form method='POST' action="{% url 'dictionary:create_word_list' %}">
   {% csrf_token %}
-  <div>List Name: {{ form.list_name }}<input type="text" name='list_name'></div>
-  <div>Make List Public: {{form.is_public}}<input type="checkbox" name="is_public"></div>
-  <input type="submit" value='Create List'/>
+  <div>
+    <input name='list_name' class='box_left' placeholder='List Name' maxlength="50"></input>
+    <p>&nbsp</p>
+    <div class='input_description'>
+      Word lists can have up to 50 characters!
+    </div>
+      <div class='checkbox'>Make List Public:
+        <input type="checkbox" name="is_public">
+      </div>
+  </div>
+  <p></p>
+  <input class='btn' type="submit" value='Create List'/>
  </form>
  {% endblock %}

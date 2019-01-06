@@ -1,6 +1,7 @@
 $colors: (
   background: #E0E0F0,
   primary: #F5F5F5,
+  primary-border: #c5c5c5,
   accent: #FFF6BB,
   dark-green: #00b300,
   link-color: #30306d,
@@ -45,7 +46,6 @@ div#login_status {
   margin-right: auto;
   width: 50em;
   outline: 0px;
-  // background-color: map-get($colors, background);
 }
 
 button {
@@ -60,7 +60,6 @@ input {
   font-family: 'Montserrat';
   background-color: map-get($colors, primary);
   font-size: 15px;
-  // border-radius: 2px;
   border: none;
 }
 
@@ -110,6 +109,36 @@ p#introduction {
   background-color: map-get($colors, primary);
 }
 
+.box_left {
+  width: 200px;
+  padding: 6px 0;
+  float: left;
+  background-color: map-get($colors, primary);
+  border-color: map-get($colors, primary-border);
+  border-width: 0.5px;
+  border-style: solid;
+  border-radius: 2px;
+  text-align: center;
+  position: absolute;
+}
+
+.checkbox {
+  padding: 5px 0px;
+  background-color: map-get($colors, primary);
+  width: 150px;
+  right: 30px;
+  border-color: map-get($colors, primary-border);
+  border-width: 0.5px;
+  border-style: solid;
+  border-radius: 2px;
+  text-align: center;
+  font-family: "Montserrat";
+  font-size: 15px;
+}
+
+.input_description {
+  padding: 5px 0;
+}
 .side_right {
   width: 375px;
   height: 50px;

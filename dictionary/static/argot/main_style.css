@@ -97,6 +97,37 @@ p#introduction {
   background-color: #F5F5F5;
 }
 
+.box_left {
+  width: 200px;
+  padding: 6px 0;
+  float: left;
+  background-color: #F5F5F5;
+  border-color: #c5c5c5;
+  border-width: 0.5px;
+  border-style: solid;
+  border-radius: 2px;
+  text-align: center;
+  position: absolute;
+}
+
+.checkbox {
+  padding: 5px 0px;
+  background-color: #F5F5F5;
+  width: 150px;
+  right: 30px;
+  border-color: #c5c5c5;
+  border-width: 0.5px;
+  border-style: solid;
+  border-radius: 2px;
+  text-align: center;
+  font-family: "Montserrat";
+  font-size: 15px;
+}
+
+.input_description {
+  padding: 5px 0;
+}
+
 .side_right {
   width: 375px;
   height: 50px;
