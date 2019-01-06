@@ -5,12 +5,16 @@
 List Name: {{ word_list.list_name }}
 <p></p>
 List Owner: {{word_list.user.username}}
+{% if word_list.wordlistentry_set.all %}
 <p>Words:</p>
 <ul>
 {% for word in word_list.wordlistentry_set.all %}
   <li><a href="/dictionary/{{ word.word.id }}/">{{ word.word }}</a></li>
 {% endfor %}
 </ul>
+{% else %}
+<p>This list is currently empty!</p>
+{% endif %}
 <p></p>
 {% if request.user == word_list.user %}
 <form method='POST' action="{% url 'dictionary:add_words_to_word_list' word_list.id %}">
