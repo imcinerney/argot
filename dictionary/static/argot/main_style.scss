@@ -109,6 +109,14 @@ p#introduction {
   background-color: map-get($colors, primary);
 }
 
+.side_right {
+  width: 375px;
+  height: 50px;
+  float: right;
+  border-radius: 2px;
+  background-color: map-get($colors, primary);
+}
+
 .box_left {
   width: 200px;
   padding: 6px 0;
@@ -139,14 +147,31 @@ p#introduction {
 .input_description {
   padding: 5px 0;
 }
-.side_right {
-  width: 375px;
-  height: 50px;
-  float: right;
-  border-radius: 2px;
-  background-color: map-get($colors, primary);
+
+table {
+    color: #333; /* Lighten up font color */
+    font-family: Helvetica, Arial, sans-serif; /* Nicer font */
+    width: 640px;
+    border-collapse:
+    collapse; border-spacing: 0;
 }
 
+td, th { border: 1px solid #CCC; height: 30px; } /* Make cells a bit taller */
+
+th {
+    background: #F3F3F3; /* Light grey background */
+    font-weight: bold; /* Make sure they're bold */
+}
+
+td {
+    background: #FAFAFA; /* Lighter grey background */
+    text-align: center; /* Center our text */
+}
+
+
+.underline {
+  border-bottom: 2px black;
+}
 
 form#login_form {
   font-size: 20px;
