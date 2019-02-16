@@ -11,11 +11,11 @@
 <form method='POST' action="{% url 'register' %}">
   {% csrf_token %}
 
-  Username: {{ form.username }}<input type="text" name='username' maxlength="30">
+  <strong>Username:</strong> {{ form.username }}<input type="text" name='username' maxlength="30">
   <p></p>
-  Password:  {{ form.password }}<input type="password" name="password" maxlength="20">
+  <strong>Password:</strong>  {{ form.password }}<input type="password" name="password" maxlength="20">
   <p></p>
-  Confirm Password:  {{ form.password2 }}<input type="password" name="password2" maxlength="20">
+  <strong>Confirm Password:</strong>  {{ form.password2 }}<input type="password" name="password2" maxlength="20">
   <input class='btn' type="submit" value='Register'/>
  </form>
  {% endblock %}
