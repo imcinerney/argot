@@ -112,6 +112,11 @@ p#introduction {
   background-color: #F5F5F5;
 }
 
+.pos_header {
+  font-size: 30px;
+  font-weight: bold;
+}
+
 .box_left {
   width: 200px;
   padding: 6px 0;
@@ -183,6 +188,7 @@ form#login_form {
 
 ul {
   list-style-type: none;
+  padding-left: 0;
 }
 
 /*# sourceMappingURL=main_style.css.map */

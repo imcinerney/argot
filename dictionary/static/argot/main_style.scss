@@ -124,6 +124,11 @@ p#introduction {
   background-color: map-get($colors, primary);
 }
 
+.pos_header {
+  font-size: 30px;
+  font-weight: bold;
+}
+
 .box_left {
   width: 200px;
   padding: 6px 0;
@@ -186,4 +191,5 @@ form#login_form {
 
 ul {
   list-style-type: none;
+  padding-left: 0;
 }
