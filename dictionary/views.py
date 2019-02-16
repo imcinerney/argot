@@ -113,19 +113,17 @@ def change_word_list_name(request, word_list_id):
     """Handles changing the name of the word list. Only owner can change name"""
     word_list = get_object_or_404(models.WordList, pk=word_list_id)
     if request.user.is_authenticated:
-        if request.method == 'POST':
-            list_owner = word_list.user
+        list_owner = word_list.user
+        if list_owner == request.user and request.method == 'POST':
             form = WordListForm(request.POST)
-            if list_owner == request.user and form.is_valid():
+            if form.is_valid():
                 word_list.list_name = form.cleaned_data['list_name']
                 word_list.save()
-                return HttpResponseRedirect(reverse('dictionary:edit_list',
-                                                    args=(word_list_id,)))
-            else:
-                return HttpResponseRedirect('/')
+            return HttpResponseRedirect(reverse('dictionary:edit_list',
+                                                args=(word_list_id,)))
         else:
-            return render(request, 'dictionary/change_word_list_name.html',
-                          {'word_list': word_list})
+            return HttpResponseRedirect(reverse('dictionary:edit_list',
+                                                    args=(word_list_id,)))
     return HttpResponseRedirect('/')
 
 
