@@ -1,4 +1,8 @@
-<table style="table-layout: fixed; width: 40%">
+{% extends 'argot/default_header.html' %}
+
+{% block content %}
+
+<table>
   <th>Word List Name</th>
   <th>Word List Owner</th>
   <th>Number of Views</th>
@@ -14,4 +18,6 @@
 {% endfor %}
 </table>
 <p></p>
-<a href='/'><button>Home</button></a>
+<a href='/'><button class='single_button_center btn'>Home</button></a>
+
+{% endblock %}

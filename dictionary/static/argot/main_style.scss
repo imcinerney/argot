@@ -1,0 +1,195 @@
+$colors: (
+  background: #E0E0F0,
+  primary: #F5F5F5,
+  primary-border: #c5c5c5,
+  accent: #FFF6BB,
+  dark-green: #00b300,
+  link-color: #30306d,
+  visited_link_color: #803030,
+  white: #FFFFFF
+);
+
+
+body {
+  margin: 0px;
+}
+
+.header {
+  border:1px solid #ccc;
+  align-items: center;
+  position: fixed;
+  width: 100%;
+  top: 0px;
+  background: map-get($colors, primary);
+  text-align: center;
+  padding: 15px;
+}
+
+.welcome_msg {
+  float: left;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0px;
+  font-size: 20px;
+}
+
+div#login_status {
+  float: right;
+  padding-right: 25px;
+  text-align: left;
+  font-size: 20px;
+}
+
+.content{
+  margin: 70px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50em;
+  outline: 0px;
+}
+
+button {
+    font-family: 'Montserrat';
+    background-color: map-get($colors, primary);
+    font-size: 1em;
+    border-radius: 2px;
+    border: none;
+}
+
+input {
+  font-family: 'Montserrat';
+  background-color: map-get($colors, primary);
+  font-size: 15px;
+  border: none;
+}
+
+input#login {
+  font-size: 20px;
+}
+
+input#search {
+  background-color: map-get($colors, white);
+}
+
+form {
+  margin-block-end: 0em;
+}
+
+.btn:hover {
+  cursor: pointer;
+  shadow: 2px 2px;
+  background-color: #F89900;
+}
+
+a {
+  text-decoration: none;
+  color: map-get($colors, link-color);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:visited {
+  color: map-get($colors, visited_link_color)
+}
+
+p#introduction {
+    font-family: 'Montserrat';
+    text-align: center;
+    background-color: map-get($colors, primary);
+    border-radius: 2px;
+}
+
+.side_left {
+  width: 375px;
+  height: 50px;
+  padding-right: 1px;
+  float: left;
+  background-color: map-get($colors, primary);
+}
+
+.side_right {
+  width: 375px;
+  height: 50px;
+  float: right;
+  border-radius: 2px;
+  background-color: map-get($colors, primary);
+}
+
+.single_button_center {
+  width: 640px;
+  height: 50px;
+  margin: 0 auto;
+  background-color: map-get($colors, primary);
+}
+
+.pos_header {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.box_left {
+  width: 200px;
+  padding: 6px 0;
+  float: left;
+  background-color: map-get($colors, primary);
+  border-color: map-get($colors, primary-border);
+  border-width: 0.5px;
+  border-style: solid;
+  border-radius: 2px;
+  text-align: center;
+  position: absolute;
+}
+
+.checkbox {
+  padding: 5px 0px;
+  background-color: map-get($colors, primary);
+  width: 150px;
+  right: 30px;
+  border-color: map-get($colors, primary-border);
+  border-width: 0.5px;
+  border-style: solid;
+  border-radius: 2px;
+  text-align: center;
+  font-family: "Montserrat";
+  font-size: 15px;
+}
+
+.input_description {
+  padding: 5px 0;
+}
+
+table {
+    color: #333; /* Lighten up font color */
+    font-family: Helvetica, Arial, sans-serif; /* Nicer font */
+    width: 640px;
+    border-collapse:
+    collapse; border-spacing: 0;
+}
+
+td, th { border: 1px solid #CCC; height: 30px; } /* Make cells a bit taller */
+
+th {
+    background: #F3F3F3; /* Light grey background */
+    font-weight: bold; /* Make sure they're bold */
+}
+
+td {
+    background: #FAFAFA; /* Lighter grey background */
+    text-align: center; /* Center our text */
+}
+
+
+.underline {
+  border-bottom: 2px black;
+}
+
+form#login_form {
+  font-size: 20px;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}

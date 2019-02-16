@@ -1,52 +1,55 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css"
-      href="{% static 'argot/style.css' %}">
-
-
-<h1>Welcome to argot!</h1>
-
-<p>Have you ever read a book with a lot of words you don't know the meaning of?
+{% block content %}
+<p id='introduction' class='about' align='center'>Have you ever read a book with a lot of words you don't know the meaning of?
    You look up the obsecure word and minutes later you have already forgotten
-   what the word meant. Argot allows you to keep track of what word you looked
-   up and the work that you looked it up from. Argot also offers a number of
+   what the word meant. argot allows you to keep track of what word you looked
+   up and the work that you looked it up from. argot also offers a number of
    curated lists to help you study for the GRE or get familiar with the
-   vocabulary of book.
+   vocabulary of book.</p>
    <p>&nbsp;</p>
-   {% if user.is_authenticated %}
-      Current word list:
-        {% if user.profile.active_word_list == None %}
-          No active list
-        {% else %}
+   <div class='word_list_info'>
+     {% if user.is_authenticated %}
+          {% if user.profile.active_word_list == None %}
+            <a href='dictionary/word_list/create_word_list'><button class='btn side_left'>No Active Word List</button></a>
+          {% else %}
+        <div class='side_left'>
+          Current word list:
         <a href='/dictionary/word_list/{{user.profile.active_word_list.id}}'>
           {{user.profile.active_word_list}}  </a>
-        {% endif %}
-      <a href='/dictionary/word_list/view_user_word_lists'><button>Change</button></a>
-      <p></p>
-      Number of words: {{user.profile.active_word_list.word_list_length}}
-      <p>&nbsp;</p>
-   {% endif %}
-   <a href='/top_word_lists'><button>Popular Word Lists</button></a>
-   <p>&nbsp;</p>
-   <form action='' method='GET'>
-   {{form.search_term}} Look Up A Word: <input type="text" name="search_term" placeholder="Enter a word..."/>
-   <input type="submit" value='Search'/>
-   </form>
-   {% if user.is_authenticated %}
-   <a href="/dictionary/word_list/view_user_word_lists"><button>Your Word Lists</button></a>
-   <p></p>
-   <a href="/user_logout"><button>Logout</button></a>
-   {% else %}
-     <form method='POST' action="{% url 'user_login' %}">
-       {% csrf_token %}
-
-       Username: {{ form.username }}<input type="text" name='username'>
-       <p></p>
-       Password: {{ form.password }}<input type="password" name="password" >
-       <input type="submit" value='Login'/>
-      </form>
-      <p>&nbsp;</p>
-      <p>Haven't made an account yet? Sign up <a href="/register"> here</a></p>
+          <p></p>
+          Number of words: {{user.profile.active_word_list.word_list_length}}
+        </div>
+          {% endif %}
+        <div class='side_right'>
+          <form action='' method='GET'>
+          {{form.search_term}} Look Up A Word: <input type="text" id="search"  name="search_term" placeholder="Enter a word..."/>
+          <input type="submit" class='btn' value='Search'/>
+          </form>
+        </div>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <div class='side_left'>
+          <a href='/dictionary/word_list/{{user.profile.active_word_list.id}}/play_game'><button class='btn side_right'>Practice List</button></a>
+        </div>
+        <div class='side_right'>
+          <a href='/top_word_lists'><button class='btn side_right'>Popular Word Lists</button></a>
+        </div>
+     {% endif %}
+   </div>
+   {% if not user.is_authenticated %}
+     <div class='side_left'>
+       <form action='' method='GET'>
+       {{form.search_term}} Look Up A Word: <input type="text" id="search"  name="search_term" placeholder="Enter a word..."/>
+       <input type="submit" class='btn' value='Search'/>
+       </form>
+     </div>
+     <div class='side_right'>
+       <a href='/top_word_lists'><button class='btn side_right'>Popular Word Lists</button></a>
+     </div>
+     <p>&nbsp;</p>
+     <p>&nbsp;</p>
+      <p>Haven't made an account yet? <a href="/register"><button class='btn'>Register</button></a></p>
  {% endif %}
 
-</p>
+{% endblock %}

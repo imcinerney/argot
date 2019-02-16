@@ -1,29 +1,30 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'dictionary/style.css' %}">
-
+{% block content %}
 
 <h1>{{ word }}</h1>
 <ul>
 {% for formword in word.formword_set.all %}
-    <h2>{{ formword.pos }}</h2>
+    <li class='pos_header'>{{ formword.pos }}</li>
     {% for def in formword.worddefinition_set.all %}
       <li>{{ def.definition }}</li>
     {% endfor %}
+    <br></br>
 {% endfor %}
 </ul>
 {% if word.synonym_set.all %}
-  <ul>Synonyms:</ul>
+  <ul><strong>Synonyms:</strong></ul>
   {% for synonym in word.synonym_set.all %}
     <li><a href='/dictionary/{{synonym.synonym.base_word.id}}'>{{synonym.synonym.name}}</a></li>
   {% endfor %}
   <p></p>
 {% endif %}
 {% if word.antonym_set.all %}
-  <ul>Antonyms:</ul>
+  <ul><strong>Antonyms:</strong></ul>
   {% for antonym in word.antonym_set.all %}
     <li><a href='/dictionary/{{antonym.antonym.base_word.id}}'>{{antonym.antonym.name}}</a></li>
   {% endfor %}
   <p></p>
 {% endif %}
-<a href='/'><button>Back to Home</button></a>
+<a href='/'><button class='btn'>Back to Home</button></a>
+{% endblock %}

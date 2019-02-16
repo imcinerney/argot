@@ -1,7 +1,14 @@
-{% load static %}
+{% extends 'argot/default_header.html' %}
 
-<link rel="stylesheet" type="text/css"
-      href="{% static 'argot/style.css' %}">
-
-
+{% block content %}
 <h1> No matching entry for {{ word }} </h1>
+<div class='side_left'>
+  <form action='' method='GET'>
+  {{form.search_term}} Look Up A Word: <input type="text" id="search"  name="search_term" placeholder="Enter a word..."/>
+  <input type="submit" class='btn' value='Search'/>
+  </form>
+</div>
+<br>&nbsp;</br>
+<br>&nbsp;</br>
+<a href='/'><button class='btn'>Home</button></a>
+{% endblock %}

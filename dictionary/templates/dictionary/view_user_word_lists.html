@@ -1,17 +1,29 @@
-<h1>Select Word List to track</h1>
+{% extends 'argot/default_header.html' %}
+
+{% block content %}
+
 <table>
-  <th align='center'>List Name</th>
+  <caption><b>Select Word List to Track</b></caption>
+  <tbody>
+  <th class='right-border' align='center'>List Name</th>
   <th>Number of Words</th>
+  <th></th>
+  <th></th>
 {% for word_list in word_lists %}
   <tr>
-    <td><a href="/dictionary/word_list/{{ word_list.id }}/">{{ word_list.list_name }}</a></td>
+    <td class='right-border'><a href="/dictionary/word_list/{{ word_list.id }}/">{{ word_list.list_name }}</a></td>
     <td align='center'>{{ word_list.word_list_length }}</td>
     {% if word_list.entries_list|length > 5 %}
       <td align='center'><a href='/dictionary/word_list/{{word_list.id}}/play_game'>Practice Words</a></td>
+    {% else %}
+      <td align='center'></td>
     {% endif %}
     <td align='center'><a href='/dictionary/word_list/delete/{{word_list.id}}'>Delete List</a></td>
   </tr>
+  </tbody>
 {% endfor %}
 </table>
-<a href='/dictionary/word_list/create_word_list'><button>Create New Word List</button></a>
-<a href='/'><button>Home</button></a>
+<br></br>
+<a href='/dictionary/word_list/create_word_list'><button class='btn side_left'>Create New Word List</button></a>
+<a href='/'><button class='btn side_right'>Home</button></a>
+{% endblock %}

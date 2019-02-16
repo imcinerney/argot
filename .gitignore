@@ -14,3 +14,5 @@ lib64
 *.DS_Store
 dictionary/sql_queries
 env
+.on-save.json
+main_style.css.map

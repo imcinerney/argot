@@ -51,8 +51,9 @@ def register(request):
                 login(request, user)
                 return render(request, 'argot/successful_registration.html')
             else:
+                errors = form.errors
                 return render(request, 'argot/registration_error.html',
-                                       {'form': form})
+                                       {'errors': errors})
         else:
             return render(request, 'argot/register.html')
     else:
