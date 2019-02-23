@@ -12,21 +12,18 @@ class BaseWordModelTest(TestCase):
     """Check basic functions"""
     def setUp(self):
         back = BaseWord.objects.create(name='back')
-        noun = PartOfSpeech.objects.create(name='noun')
-        verb = PartOfSpeech.objects.create(name='verb')
-        abverb = PartOfSpeech.objects.create(name='abverb')
-        adjective = PartOfSpeech.objects.create(name='adjective')
+        noun = PartOfSpeech.objects.get(name='noun')
+        verb = PartOfSpeech.objects.get(name='verb')
+        adjective = PartOfSpeech.objects.get(name='adjective')
         form1 = FormWord.objects.create(base_word=back, pos=noun)
         form2 = FormWord.objects.create(base_word=back, pos=verb)
-        form3 = FormWord.objects.create(base_word=back, pos=abverb)
-        form4 = FormWord.objects.create(base_word=back, pos=adjective)
+        form3 = FormWord.objects.create(base_word=back, pos=adjective)
         james = User.objects.create(username='james')
 
     def test_pos_list(self):
         """Make sure the return_pos_list() function works correctly"""
         back = BaseWord.objects.get(name='back')
-        self.assertEqual(back.return_pos_list(), ['noun', 'verb', 'abverb',
-                                                  'adjective'])
+        self.assertEqual(back.return_pos_list(), ['noun', 'verb', 'adjective'])
 
     def test_null_word_list(self):
         """Tests that there shouldn't be active wordlist unless assigned"""
@@ -52,9 +49,8 @@ class BackDefinitionEntryTest(TestCase):
 
     def test_db_created_successfully(self):
         base_words = BaseWord.objects.all()
-        self.assertEqual(list(base_words.values_list('name', flat=True)),
-                         ['back'])
-        db_pos_list = base_words[0].return_pos_list()
+        back_base_word = base_words.get(name='back')
+        db_pos_list = back_base_word.return_pos_list()
         pos_list = ['noun',
                     'adverb',
                     'adjective',
@@ -62,9 +58,11 @@ class BackDefinitionEntryTest(TestCase):
                     'geographical name',
                    ]
         self.assertEqual(db_pos_list, pos_list)
-        db_definitions = list(WordDefinition.objects.all()
-                                            .values_list('definition',
-                                                          flat=True))
+        qs = (BaseWord.objects.all()
+                      .annotate(defs=F('formword__worddefinition__definition'))
+                      .filter(name='back')
+                      .values_list('defs', flat=True))
+        db_definitions = list(qs)
         definitions = ['the rear part of the human body especially from the'
                            ' neck to the end of the spine',
                        'the body considered as the wearer of clothes',
@@ -141,16 +139,17 @@ class BolsterDefinitionEntryTest(TestCase):
 
     def test_db_created_successfully(self):
         base_words = BaseWord.objects.all()
-        self.assertEqual(list(base_words.values_list('name', flat=True)),
-                         ['bolster'])
-        db_pos_list = base_words[0].return_pos_list()
+        bolster_base_word = base_words.get(name='bolster')
+        db_pos_list = bolster_base_word.return_pos_list()
         pos_list = ['noun',
                     'verb',
                    ]
         self.assertEqual(db_pos_list, pos_list)
-        db_definitions = list(WordDefinition.objects.all()
-                                            .values_list('definition',
-                                                          flat=True))
+        qs = (BaseWord.objects.all()
+                      .annotate(defs=F('formword__worddefinition__definition'))
+                      .filter(name='bolster')
+                      .values_list('defs', flat=True))
+        db_definitions = list(qs)
         definitions = [
                         'a long pillow or cushion',
                         'a structural part designed to eliminate friction or '
@@ -166,6 +165,7 @@ class CapriciousPrecipitateDefinitionEntryTest(TestCase):
     """Class to test that the scraper successfully extracts info from the
     entry of the word 'capricious' and then 'precipitate'"""
     def setUp(self):
+        BaseWord.objects.all().delete()
         mws.scrape_word('precipitate')
         mws.scrape_word('capricious')
 
@@ -218,6 +218,7 @@ class OstentatiousAffectedDefinitionEntryTest(TestCase):
     entry of the word 'Ostentatious' and then 'affected'
     """
     def setUp(self):
+        BaseWord.objects.all().delete()
         mws.scrape_word('ostentatious')
         mws.scrape_word('affected')
 
@@ -260,6 +261,7 @@ class EndorseDefinitionEntryTest(TestCase):
     entry whenever possible
     """
     def setUp(self):
+        BaseWord.objects.all().delete()
         mws.scrape_word('indorse')
 
     def test_db_created_successfully(self):
